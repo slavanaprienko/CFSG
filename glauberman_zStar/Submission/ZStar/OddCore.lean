@@ -1,5 +1,4 @@
-import Mathlib
-import Submission.FeitThompson.FinalTheorem
+import FeitThompson.FinalTheorem
 
 /-!
 # Odd core and quotient-center bridge

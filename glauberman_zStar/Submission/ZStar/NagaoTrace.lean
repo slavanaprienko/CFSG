@@ -286,7 +286,7 @@ lemma evalPlus_sub_evalMinus_eq_two_mul_coeff
     (c : C) (hc : c ≠ 1) (hc2 : c * c = 1)
     (hall : ∀ g : C, g = 1 ∨ g = c)
     (a : MonoidAlgebra R C) :
-    evalPlus R C a - evalMinus c hc hc2 hall a = (2 : R) * a c := by
+    evalPlus R C a - evalMinus c hc hc2 hall a = (2 : R) * a.coeff c := by
   induction a using MonoidAlgebra.induction_linear with
   | zero =>
       rw [map_zero, map_zero, sub_self]
@@ -294,7 +294,7 @@ lemma evalPlus_sub_evalMinus_eq_two_mul_coeff
       ring
   | add a b ha hb =>
       rw [map_add, map_add]
-      change _ = (2 : R) * (a c + b c)
+      change _ = (2 : R) * (a.coeff c + b.coeff c)
       linear_combination ha + hb
   | single g r =>
       rcases hall g with rfl | rfl
@@ -306,7 +306,7 @@ lemma coeff_shift_of_involution
     {R C : Type*} [CommRing R] [CommGroup C] [DecidableEq C]
     (c : C) (hc2 : c * c = 1) (g : C) (a : MonoidAlgebra R C) :
     (((MonoidAlgebra.of R C c) *
-      MonoidAlgebra.single g 1 * a : MonoidAlgebra R C) g) = a c := by
+      MonoidAlgebra.single g 1 * a : MonoidAlgebra R C).coeff g) = a.coeff c := by
   have hcinv : c⁻¹ = c := inv_eq_of_mul_eq_one_right hc2
   rw [show MonoidAlgebra.of R C c = MonoidAlgebra.single c 1 by rfl,
     MonoidAlgebra.single_mul_single, MonoidAlgebra.single_mul_apply]
@@ -325,9 +325,9 @@ theorem trace_lsmul_comp_eq_two_mul_coeff_sum
     LinearMap.trace R M
         (((LinearMap.lsmul (MonoidAlgebra R C) M
           (MonoidAlgebra.of R C c)).comp f).restrictScalars R) =
-      ∑ i, (2 : R) * (bM.repr (f (bM i)) i) c := by
+      ∑ i, (2 : R) * (bM.repr (f (bM i)) i).coeff c := by
   classical
-  let bR : Basis C R (MonoidAlgebra R C) := Finsupp.basisSingleOne
+  let bR : Basis C R (MonoidAlgebra R C) := MonoidAlgebra.basis C R
   rw [LinearMap.trace_eq_matrix_trace R (bR.smulTower' bM), Matrix.trace]
   simp only [Matrix.diag_apply, LinearMap.toMatrix_apply,
     Basis.smulTower'_repr, Basis.smulTower'_apply,
@@ -341,10 +341,10 @@ theorem trace_lsmul_comp_eq_two_mul_coeff_sum
   have hterm (g : C) :
       (bR.repr ((MonoidAlgebra.of R C) c *
         (bR g * (bM.repr (f (bM i))) i))) g =
-        (bM.repr (f (bM i)) i) c := by
+        (bM.repr (f (bM i)) i).coeff c := by
     change (((MonoidAlgebra.of R C c) *
       (MonoidAlgebra.single g 1 * (bM.repr (f (bM i))) i) :
-        MonoidAlgebra R C) g) = (bM.repr (f (bM i)) i) c
+        MonoidAlgebra R C).coeff g) = (bM.repr (f (bM i)) i).coeff c
     simpa [mul_assoc] using
       coeff_shift_of_involution c hc2 g (bM.repr (f (bM i)) i)
   simp_rw [hterm]

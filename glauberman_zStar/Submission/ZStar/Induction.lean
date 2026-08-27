@@ -1,6 +1,6 @@
-import Submission.FeitThompson.BGsection1.PLengthLemmas
-import Submission.FeitThompson.BGsection1.theorem_1_18
-import Submission.FeitThompson.GroupAction.Cardinalities
+import FeitThompson.BGsection1.PLengthLemmas
+import FeitThompson.BGsection1.theorem_1_18
+import FeitThompson.GroupAction.Cardinalities
 import Submission.ZStar.MinimalSteps
 import Submission.ZStar.OddCommutators
 

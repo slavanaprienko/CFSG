@@ -1,7 +1,6 @@
-import Mathlib
 import Submission.BrauerSuzuki
 import Submission.CyclicCase
-import Submission.FeitThompson.FinalTheorem
+import FeitThompson.FinalTheorem
 import Submission.ZStar.LocalReduction
 import Submission.ZStar.OddCore
 

@@ -96,7 +96,8 @@ theorem exists_commuting_replacement_of_section_invariance
     rw [hrt_eq_c] at hrt_odd
     have hc_order : orderOf c = 2 := orderOf_eq_prime hcI'.2 hcI'.1
     rw [hc_order] at hrt_odd
-    norm_num at hrt_odd
+    rcases hrt_odd with ⟨k, hk⟩
+    omega
   · let s0 : G := c * t
     have hs0_conj_s : s0 = w ^ a * s * (w ^ a)⁻¹ := by
       dsimp [s0, c]

@@ -105,7 +105,7 @@ theorem projective_range_of_fixed_coeff_mem_maximalIdeal
     (f : MonoidAlgebra R G) (hf : IsIdempotentElem f)
     (hfinv : BrauerKernelRelativeTrace.conjugation R z f = f)
     (hfixed : ∀ x : G, z⁻¹ * x * z = x →
-      f x ∈ IsLocalRing.maximalIdeal R) :
+      f.coeff x ∈ IsLocalRing.maximalIdeal R) :
     let P := Subgroup.zpowers z
     let hcomm := LeftIdealHigman.commute_zpowers_of_conjugation_fixed
       z hzne hz f hfinv

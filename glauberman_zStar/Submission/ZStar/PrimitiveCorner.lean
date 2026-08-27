@@ -3,6 +3,7 @@ import Submission.ZStar.AugmentationScratch
 import Mathlib.RingTheory.Artinian.Module
 import Mathlib.Data.Finsupp.Fintype
 import Mathlib.RingTheory.KrullDimension.Zero
+import Mathlib.RingTheory.LocalRing.NonLocalRing
 import Mathlib.RingTheory.Spectrum.Prime.Noetherian
 
 /-!
@@ -234,9 +235,8 @@ theorem reducedPrincipalBlockElement_corner_augmentation_zero_isNilpotent
   letI : DecidableEq G := Classical.decEq G
   letI : Finite
       (MonoidAlgebra (BrauerBlockReduction.principalResidueField d) G) := by
-    change Finite
-      (G →₀ BrauerBlockReduction.principalResidueField d)
-    infer_instance
+    exact Finite.of_injective MonoidAlgebra.coeff
+      MonoidAlgebra.coeff_injective
   exact isNilpotent_of_centrallyPrimitive_of_map_eq_zero
     (AugmentationScratch.augmentation
       (BrauerBlockReduction.principalResidueField d) G)

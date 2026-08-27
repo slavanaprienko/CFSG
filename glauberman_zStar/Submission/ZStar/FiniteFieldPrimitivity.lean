@@ -68,7 +68,7 @@ noncomputable def conjugate
 
 @[simp] theorem conjugate_apply (σ : K ≃ₐ[k] K)
     (x : MonoidAlgebra K H) (h : H) :
-    conjugate k K H σ x h = σ (x h) := by
+    (conjugate k K H σ x).coeff h = σ (x.coeff h) := by
   simp [conjugate]
 
 @[simp] theorem conjugate_zero (σ : K ≃ₐ[k] K) :
@@ -154,12 +154,12 @@ theorem exists_preimage_of_galois_fixed
     ∃ x : MonoidAlgebra k H,
       MonoidAlgebra.mapRingHom H (algebraMap k K) x = y := by
   classical
-  have hcoeff : ∀ h : H, y h ∈ Set.range (algebraMap k K) := by
+  have hcoeff : ∀ h : H, y.coeff h ∈ Set.range (algebraMap k K) := by
     intro h
     apply (IsGalois.mem_range_algebraMap_iff_fixed
-      (F := k) (E := K) (y h)).2
+      (F := k) (E := K) (y.coeff h)).2
     intro σ
-    have hs := congrArg (fun a : MonoidAlgebra K H => a h) (hy σ)
+    have hs := congrArg (fun a : MonoidAlgebra K H => a.coeff h) (hy σ)
     simpa [conjugate_apply] using hs
   have hyRange :
       y ∈ Set.range

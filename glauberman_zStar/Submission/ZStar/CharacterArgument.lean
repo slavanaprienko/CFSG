@@ -1,7 +1,7 @@
-import Submission.BenderSuzuki.External.Suzuki.VI.theorem_1_8
+import BenderSuzuki.External.Suzuki.VI.theorem_1_8
 import Submission.FeitThompson.Representation.Divisibility
 import Submission.FeitThompson.Representation.SimpleCriteria
-import Submission.FeitThompson.PFsection6.Basic
+import FeitThompson.PFsection6.Basic
 import Submission.ZStar.OddCommutators
 
 /-!
@@ -92,9 +92,41 @@ theorem representationKernel_ne_top_of_irreducibleCharacter_ne_principal
     rfl
   have hrhoIrr : Section1.IsIrreducibleCharacterOnGroup rho.character :=
     ⟨n, rho, hirr, rfl⟩
-  have hnotTop :=
-    Section6.not_subgroupInKernel_top_of_irreducible_ne_principal
-      hrhoIrr hrho_ne
+  have hnotTop :
+      ¬ Section1.subgroupInKernel' rho.character (⊤ : Subgroup G) := by
+    intro hker
+    have horth :=
+      Section1.scalarProduct_irreducibleCharacter_principal_eq_zero_of_ne
+        hrhoIrr hrho_ne
+    have hspdeg :
+        Section1.scalarProduct G rho.character
+            (Section1.principalCharacter G) =
+          Section1.degree rho.character := by
+      unfold Section1.scalarProduct Section1.principalCharacter Section1.degree
+      have hsum :
+          (∑ g : G, rho.character g * star (1 : ℂ)) =
+            ∑ _g : G, rho.character 1 := by
+        refine Finset.sum_congr rfl ?_
+        intro g _hg
+        have hg := hker ⟨g, by simp⟩
+        simpa [Section1.degree] using hg
+      rw [hsum]
+      simp
+    have hdeg0 : Section1.degree rho.character = 0 := by
+      rw [← hspdeg, horth]
+    have hself :
+        Section1.scalarProduct G rho.character rho.character = 1 :=
+      Section1.scalarProduct_representation_char_self rho hirr
+    have hself0 :
+        Section1.scalarProduct G rho.character rho.character = 0 := by
+      unfold Section1.scalarProduct Section1.degree at hdeg0
+      unfold Section1.scalarProduct
+      have hzero : ∀ g : G, rho.character g = 0 := by
+        intro g
+        have hg := hker ⟨g, by simp⟩
+        simpa [Section1.degree, hdeg0] using hg
+      simp [hzero]
+    norm_num [hself0] at hself
   intro hker
   apply hnotTop
   apply (Section1.subgroupInKernel'_character_iff_subgroupInRepresentationKernel
@@ -427,7 +459,8 @@ theorem eq_one_of_sq_eq_one_of_orderOf_odd
   rcases (Nat.dvd_prime Nat.prime_two).mp hdvd with hone | htwo
   · exact orderOf_eq_one_iff.mp hone
   · rw [htwo] at hodd
-    norm_num at hodd
+    rcases hodd with ⟨k, hk⟩
+    omega
 
 /-- Kernel step in Glauberman Step (VI).
 

@@ -100,14 +100,14 @@ ideal is enough to invert `1 - r`. -/
 theorem groupAlgebra_isUnit_one_sub_of_coeff_mem_maximalIdeal
     {R G : Type*} [CommRing R] [IsLocalRing R] [Group G] [Finite G]
     (r : MonoidAlgebra R G)
-    (hr : ∀ x : G, r x ∈ IsLocalRing.maximalIdeal R) :
+    (hr : ∀ x : G, r.coeff x ∈ IsLocalRing.maximalIdeal R) :
     IsUnit (1 - r) := by
   classical
   apply isUnit_one_sub_of_mulLeft_matrix_mem_maximalIdeal_of_basis
-    (Finsupp.basisSingleOne : Basis G R (MonoidAlgebra R G)) r
+    (MonoidAlgebra.basis G R : Basis G R (MonoidAlgebra R G)) r
   intro i j
   rw [Algebra.leftMulMatrix_eq_repr_mul]
-  change ((r * MonoidAlgebra.single j (1 : R) : MonoidAlgebra R G) i) ∈
+  change (r * MonoidAlgebra.single j (1 : R) : MonoidAlgebra R G).coeff i ∈
     IsLocalRing.maximalIdeal R
   rw [MonoidAlgebra.mul_single_apply]
   simpa using hr (i * j⁻¹)

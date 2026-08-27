@@ -255,7 +255,7 @@ private theorem classSum_apply
     {G : Type*} [Group G] [Finite G]
     [DecidableEq (ConjClasses G)]
     (R : Type*) [CommRing R] (c : ConjClasses G) (g : G) :
-    classSum R c g = if ConjClasses.mk g = c then 1 else 0 :=
+    (classSum R c).coeff g = if ConjClasses.mk g = c then 1 else 0 :=
   classSum_coeff R c g
 
 private theorem classSum_comm
@@ -423,15 +423,14 @@ private theorem center_eq_sum_classCoefficient_smul_classSum
         CentralScalarCongruence.centralClassCoefficient z c • classSum R c := by
   classical
   letI : Fintype (ConjClasses G) := Fintype.ofFinite (ConjClasses G)
-  apply Finsupp.ext
-  intro g
+  ext g
   change (z : MonoidAlgebra R G).coeff g =
     (∑ c : ConjClasses G,
       CentralScalarCongruence.centralClassCoefficient z c • classSum R c).coeff g
   simp only [MonoidAlgebra.coeff_sum]
   rw [Finset.sum_apply']
-  change (z : MonoidAlgebra R G) g = ∑ c : ConjClasses G,
-    CentralScalarCongruence.centralClassCoefficient z c * classSum R c g
+  change (z : MonoidAlgebra R G).coeff g = ∑ c : ConjClasses G,
+    CentralScalarCongruence.centralClassCoefficient z c * (classSum R c).coeff g
   simp only [classSum_apply, mul_ite, mul_one, mul_zero]
   rw [Finset.sum_eq_single (ConjClasses.mk g)]
   · simpa using (CentralScalarCongruence.centralClassCoefficient_eq
@@ -672,10 +671,10 @@ private theorem localizedCentralScalar_sub
   apply Finset.sum_congr rfl
   intro c _hc
   change
-    (z.1 (CentralScalarCongruence.classRepresentative c) -
-        w.1 (CentralScalarCongruence.classRepresentative c)) * _ =
-      z.1 (CentralScalarCongruence.classRepresentative c) * _ -
-        w.1 (CentralScalarCongruence.classRepresentative c) * _
+    (z.1.coeff (CentralScalarCongruence.classRepresentative c) -
+        w.1.coeff (CentralScalarCongruence.classRepresentative c)) * _ =
+      z.1.coeff (CentralScalarCongruence.classRepresentative c) * _ -
+        w.1.coeff (CentralScalarCongruence.classRepresentative c) * _
   exact sub_mul _ _ _
 
 private theorem localizedCentralScalar_pow_of_pos
@@ -704,7 +703,7 @@ private theorem card_mul_coeff_eq_sum_localizedCentralScalar
     (z : Subring.center
       (MonoidAlgebra (Localization.AtPrime d.primeIdeal) G))
     (g : G) :
-    (Nat.card G : Localization.AtPrime d.primeIdeal) * z.1 g =
+    (Nat.card G : Localization.AtPrime d.primeIdeal) * z.1.coeff g =
       ∑ i : d.I,
         CentralScalarCongruence.localizedCentralScalar d.eta_spec
             d.primeIdeal (d.chi i) (d.complete.1 i) z *
@@ -719,7 +718,7 @@ private theorem card_mul_coeff_eq_sum_localizedCentralScalar
   simp only [map_mul, map_sum, map_natCast,
     localizationToComplex_characterValue]
   change (Nat.card G : ℂ) *
-      (MonoidAlgebra.mapRingHom G (localizationToComplex d) z.1) g =
+      (MonoidAlgebra.mapRingHom G (localizationToComplex d) z.1).coeff g =
     ∑ i : d.I,
       localizationToComplex d
           (CentralScalarCongruence.localizedCentralScalar d.eta_spec
@@ -740,8 +739,8 @@ private theorem card_mul_coeff_eq_sum_localizedCentralScalar
         exact localizedCentralScalar_action d i rho hrho z) g
   have hcard : (Nat.card G : ℂ) ≠ 0 := by
     exact_mod_cast (Nat.card_pos (α := G)).ne'
-  change zC g = _ at hcoeff
-  change (Nat.card G : ℂ) * zC g = _
+  change zC.coeff g = _ at hcoeff
+  change (Nat.card G : ℂ) * zC.coeff g = _
   rw [hcoeff]
   field_simp [hcard]
 
@@ -813,9 +812,9 @@ private theorem localizationToResidue_localizedCentralScalar_eq_zero_of_map_eq_z
   have hc := congrArg
     (fun a : MonoidAlgebra
         (BrauerBlockReduction.principalResidueField d) G =>
-      a (CentralScalarCongruence.classRepresentative c)) hz
+      a.coeff (CentralScalarCongruence.classRepresentative c)) hz
   change BrauerBlockReduction.localizationToResidue d
-      (z.1 (CentralScalarCongruence.classRepresentative c)) = 0 at hc
+      (z.1.coeff (CentralScalarCongruence.classRepresentative c)) = 0 at hc
   have hcoeff : BrauerBlockReduction.localizationToResidue d
       (CentralScalarCongruence.centralClassCoefficient z c) = 0 := by
     exact hc
@@ -895,7 +894,7 @@ theorem exists_pow_reduce_eq_zero_of_all_localizedCentralScalar_nonunit
   simp_rw [localizedCentralScalar_pow_of_pos d _ z N hN] at hreconstruct
   have hcoeff :
       ((z ^ N : Subring.center
-          (MonoidAlgebra (Localization.AtPrime d.primeIdeal) G)).1 g) =
+          (MonoidAlgebra (Localization.AtPrime d.primeIdeal) G)).1.coeff g) =
         ∑ i : d.I,
           q i *
             algebraMap (Representation.cyclotomicOrder d.eta) R
@@ -906,7 +905,7 @@ theorem exists_pow_reduce_eq_zero_of_all_localizedCentralScalar_nonunit
     calc
       (Nat.card G : R) *
           ((z ^ N : Subring.center
-            (MonoidAlgebra (Localization.AtPrime d.primeIdeal) G)).1 g) =
+            (MonoidAlgebra (Localization.AtPrime d.primeIdeal) G)).1.coeff g) =
         ∑ i : d.I,
           CentralScalarCongruence.localizedCentralScalar d.eta_spec
                 d.primeIdeal (d.chi i) (d.complete.1 i) z ^ N *
@@ -1394,10 +1393,10 @@ private theorem ambientLocalizedCentralScalar_sub
   apply Finset.sum_congr rfl
   intro c _hc
   change
-    (z.1 (CentralScalarCongruence.classRepresentative c) -
-        w.1 (CentralScalarCongruence.classRepresentative c)) * _ =
-      z.1 (CentralScalarCongruence.classRepresentative c) * _ -
-        w.1 (CentralScalarCongruence.classRepresentative c) * _
+    (z.1.coeff (CentralScalarCongruence.classRepresentative c) -
+        w.1.coeff (CentralScalarCongruence.classRepresentative c)) * _ =
+      z.1.coeff (CentralScalarCongruence.classRepresentative c) * _ -
+        w.1.coeff (CentralScalarCongruence.classRepresentative c) * _
   exact sub_mul _ _ _
 
 private theorem ambientLocalizedCentralScalar_pow_of_pos
@@ -1569,7 +1568,7 @@ private theorem card_mul_coeff_eq_sum_ambientLocalizedCentralScalar
     (z : Subring.center
       (MonoidAlgebra (Localization.AtPrime d.primeIdeal) H))
     (g : H) :
-    (Nat.card H : Localization.AtPrime d.primeIdeal) * z.1 g =
+    (Nat.card H : Localization.AtPrime d.primeIdeal) * z.1.coeff g =
       ∑ i : (CompatibleBrauerBlock.localData d H).I,
         ambientLocalizedCentralScalar d H i z *
           localCharacterValueInAmbientLocalization d H i 1 *
@@ -1580,7 +1579,7 @@ private theorem card_mul_coeff_eq_sum_ambientLocalizedCentralScalar
   simp only [map_mul, map_sum, map_natCast,
     localizationToComplex_localCharacterValueInAmbientLocalization]
   change (Nat.card H : ℂ) *
-      (MonoidAlgebra.mapRingHom H (localizationToComplex d) z.1) g =
+      (MonoidAlgebra.mapRingHom H (localizationToComplex d) z.1).coeff g =
     ∑ i : l.I,
       localizationToComplex d (ambientLocalizedCentralScalar d H i z) *
         l.chi i (ConjClasses.mk (1 : H)) *
@@ -1598,8 +1597,8 @@ private theorem card_mul_coeff_eq_sum_ambientLocalizedCentralScalar
         exact ambientLocalizedCentralScalar_action d H i rho hrho z) g
   have hcard : (Nat.card H : ℂ) ≠ 0 := by
     exact_mod_cast (Nat.card_pos (α := H)).ne'
-  change zC g = _ at hcoeff
-  change (Nat.card H : ℂ) * zC g = _
+  change zC.coeff g = _ at hcoeff
+  change (Nat.card H : ℂ) * zC.coeff g = _
   rw [hcoeff]
   field_simp [hcard]
 
@@ -1623,9 +1622,9 @@ private theorem localizationToResidue_ambientLocalizedCentralScalar_eq_zero_of_m
   have hc := congrArg
     (fun a : MonoidAlgebra
         (BrauerBlockReduction.principalResidueField d) H =>
-      a (CentralScalarCongruence.classRepresentative c)) hz
+      a.coeff (CentralScalarCongruence.classRepresentative c)) hz
   change BrauerBlockReduction.localizationToResidue d
-      (z.1 (CentralScalarCongruence.classRepresentative c)) = 0 at hc
+      (z.1.coeff (CentralScalarCongruence.classRepresentative c)) = 0 at hc
   have hcoeff : BrauerBlockReduction.localizationToResidue d
       (CentralScalarCongruence.centralClassCoefficient z c) = 0 := by
     simpa only [CentralScalarCongruence.centralClassCoefficient] using hc
@@ -1674,7 +1673,7 @@ private theorem exists_pow_reduce_eq_zero_of_all_ambientLocalizedCentralScalar_n
   simp_rw [ambientLocalizedCentralScalar_pow_of_pos d H _ z N hN] at hreconstruct
   have hcoeff :
       ((z ^ N : Subring.center
-          (MonoidAlgebra (Localization.AtPrime d.primeIdeal) H)).1 g) =
+          (MonoidAlgebra (Localization.AtPrime d.primeIdeal) H)).1.coeff g) =
         ∑ i : l.I,
           q i * localCharacterValueInAmbientLocalization d H i 1 *
             localCharacterValueInAmbientLocalization d H i g⁻¹ := by
@@ -1682,7 +1681,7 @@ private theorem exists_pow_reduce_eq_zero_of_all_ambientLocalizedCentralScalar_n
     calc
       (Nat.card H : R) *
           ((z ^ N : Subring.center
-            (MonoidAlgebra (Localization.AtPrime d.primeIdeal) H)).1 g) =
+            (MonoidAlgebra (Localization.AtPrime d.primeIdeal) H)).1.coeff g) =
         ∑ i : l.I,
           ambientLocalizedCentralScalar d H i z ^ N *
             localCharacterValueInAmbientLocalization d H i 1 *

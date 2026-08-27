@@ -99,11 +99,11 @@ theorem mapDomain_subgroupRestriction_eq_subgroupRestriction_mapDomain
     exact (E.apply_symm_apply y).symm
   rw [hy]
   change Finsupp.mapDomain E
-      (DefectSupport.subgroupCentralizerRestriction R Q e) (E x) =
-    (MonoidAlgebra.mapDomainRingHom R H.subtype e) ((E x : _) : G)
+      (DefectSupport.subgroupCentralizerRestriction R Q e).coeff (E x) =
+    (MonoidAlgebra.mapDomainRingHom R H.subtype e).coeff ((E x : _) : G)
   rw [Finsupp.mapDomain_apply E.injective]
-  change e (x : H) = Finsupp.mapDomain H.subtype e (x : G)
-  exact (Finsupp.mapDomain_apply H.subtype_injective e (x : H)).symm
+  change e.coeff (x : H) = Finsupp.mapDomain H.subtype e.coeff (x : G)
+  exact (Finsupp.mapDomain_apply H.subtype_injective e.coeff (x : H)).symm
 
 /-! For an involution centralizer, the preceding comparison also identifies
 the iterated restriction of an ambient element with its direct subgroup
@@ -133,7 +133,8 @@ theorem mapDomain_iteratedCentralizerRestriction_eq_subgroupRestriction
   rw [hy]
   change Finsupp.mapDomain E
       (DefectSupport.subgroupCentralizerRestriction R Q
-        (BrauerMapScratch.centralizerRestriction R z e)) (E x) = e (x : G)
+        (BrauerMapScratch.centralizerRestriction R z e)).coeff (E x) =
+      e.coeff (x : G)
   rw [Finsupp.mapDomain_apply E.injective]
   rfl
 

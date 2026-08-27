@@ -65,12 +65,12 @@ noncomputable def conjugationMap
 @[simp] theorem conjugationMap_apply_image
     {R : Type u} {G : Type v} [CommRing R] [Group G]
     (H : Subgroup G) (g : G) (b : MonoidAlgebra R H) (h : H) :
-    conjugationMap R H g b (g * (h : G) * g⁻¹) = b h := by
+    (conjugationMap R H g b).coeff (g * (h : G) * g⁻¹) = b.coeff h := by
   change Finsupp.mapDomain
-      ((MulAut.conj g).toMonoidHom.comp H.subtype) b
-        (((MulAut.conj g).toMonoidHom.comp H.subtype) h) = b h
+      ((MulAut.conj g).toMonoidHom.comp H.subtype) b.coeff
+        (((MulAut.conj g).toMonoidHom.comp H.subtype) h) = b.coeff h
   exact Finsupp.mapDomain_apply
-    ((MulAut.conj g).injective.comp H.subtype_injective) b h
+    ((MulAut.conj g).injective.comp H.subtype_injective) b.coeff h
 
 /-- Coefficient form after restriction to an involution centralizer. -/
 @[simp] theorem centralizerRestriction_conjugationMap_apply_image
@@ -78,9 +78,9 @@ noncomputable def conjugationMap
     (H : Subgroup G) (z g : G) (b : MonoidAlgebra R H) (h : H)
     (hmem : g * (h : G) * g⁻¹ ∈
       Subgroup.centralizer ({z} : Set G)) :
-    BrauerMapScratch.centralizerRestriction R z
-        (conjugationMap R H g b)
-        ⟨g * (h : G) * g⁻¹, hmem⟩ = b h := by
+    (BrauerMapScratch.centralizerRestriction R z
+        (conjugationMap R H g b)).coeff
+        ⟨g * (h : G) * g⁻¹, hmem⟩ = b.coeff h := by
   rw [BrauerMapScratch.centralizerRestriction_apply]
   exact conjugationMap_apply_image H g b h
 
@@ -825,13 +825,14 @@ lemma centralizerRestriction_conjugationMap_z_mul
       (MonoidAlgebra.of R G z * a * MonoidAlgebra.of R G z⁻¹) =
         BrauerMapScratch.centralizerRestriction R z a by
     simpa only [a, mul_assoc] using hmain
+  apply MonoidAlgebra.coeff_injective
   apply Finsupp.ext
   intro h
   have hh : (h : G) * z = z * (h : G) :=
     Subgroup.mem_centralizer_singleton_iff.mp h.property
   change
-    (MonoidAlgebra.of R G z * a * MonoidAlgebra.of R G z⁻¹) (h : G) =
-      a (h : G)
+    (MonoidAlgebra.of R G z * a * MonoidAlgebra.of R G z⁻¹).coeff (h : G) =
+      a.coeff (h : G)
   rw [show MonoidAlgebra.of R G z⁻¹ =
       MonoidAlgebra.single z⁻¹ 1 by rfl,
     MonoidAlgebra.mul_single_apply,

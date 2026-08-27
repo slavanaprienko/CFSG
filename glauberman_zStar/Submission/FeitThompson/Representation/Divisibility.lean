@@ -98,7 +98,7 @@ private lemma classSumComplex_coeff [DecidableEq (ConjClasses G)] (c : ConjClass
 
 private lemma classSumComplex_apply [DecidableEq (ConjClasses G)]
     (c : ConjClasses G) (x : G) :
-    classSumComplex (G := G) c x =
+    (classSumComplex (G := G) c).coeff x =
       if ConjClasses.mk x = c then 1 else 0 :=
   classSumComplex_coeff c x
 
@@ -665,7 +665,7 @@ public theorem irreducible_dimension_dvd_group_order
         classSumScalar (ρ := ρ) c * star (ρ.character (classRep (G := G) c))) ?_
     intro c _hc
     have hstar : IsIntegral ℤ (star (ρ.character (classRep (G := G) c))) := by
-      rw [(representation_character_inv_eq_star_character ρ
+      rw [(Theory.Representation.representation_character_inv_eq_star_character ρ
         (classRep (G := G) c)).symm]
       exact representation_character_isIntegral (ρ := ρ) ((classRep (G := G) c)⁻¹)
     exact (classSumScalar_isIntegral (ρ := ρ) c).mul hstar

@@ -1,4 +1,4 @@
-import Submission.FeitThompson.Representation.SolvableDimension
+import Theory.Representation.SolvableDimension
 import Submission.ZStar.LocalReduction
 
 /-!
@@ -14,6 +14,62 @@ namespace Submission.ZStar
 universe u v w
 
 attribute [local instance] Fintype.ofFinite
+
+private noncomputable def fixedSubrepresentationOfNormal
+    {F : Type*} [Field F] {G : Type*} [Group G] {V : Type*}
+    [AddCommGroup V] [Module F V] (rho : Representation F G V)
+    (H : Subgroup G) [H.Normal] :
+    Subrepresentation rho where
+  toSubmodule := Representation.invariants (rho.comp H.subtype)
+  apply_mem_toSubmodule := by
+    intro g v hv h
+    have hh' : (g : G)⁻¹ * h * g ∈ H := by
+      simpa using Subgroup.Normal.conj_mem
+        (inferInstance : H.Normal) h h.2 ((g : G)⁻¹)
+    let h' : H := ⟨(g : G)⁻¹ * h * g, hh'⟩
+    have hvh' : rho h' v = v := hv h'
+    calc
+      rho h (rho g v) = ((rho h) * (rho g)) v := rfl
+      _ = rho ((h : G) * g) v := by rw [← rho.map_mul]
+      _ = rho (g * (h' : H)) v := by
+        congr 1
+        simp [h', mul_assoc]
+      _ = ((rho g) * (rho h')) v := by rw [rho.map_mul]
+      _ = rho g (rho h' v) := rfl
+      _ = rho g v := by rw [hvh']
+
+private theorem le_ker_of_normal_invariants_ne_bot
+    {F : Type*} [Field F] {G : Type*} [Group G] {V : Type*}
+    [AddCommGroup V] [Module F V] (rho : Representation F G V)
+    (H : Subgroup G) [H.Normal] [Representation.IsIrreducible rho]
+    (hfix : Representation.invariants (rho.comp H.subtype) ≠ ⊥) :
+    H ≤ rho.ker := by
+  let S : Subrepresentation rho := fixedSubrepresentationOfNormal rho H
+  have hS_ne : S ≠ ⊥ := by
+    intro hS
+    exact hfix (by
+      calc
+        Representation.invariants (rho.comp H.subtype) = S.toSubmodule := rfl
+        _ = (⊥ : Subrepresentation rho).toSubmodule :=
+          congrArg Subrepresentation.toSubmodule hS
+        _ = (⊥ : Submodule F V) := rfl)
+  have hS_top : S = ⊤ := by
+    rcases (inferInstance : Representation.IsIrreducible rho).eq_bot_or_eq_top S with
+      hbot | htop
+    · exact False.elim (hS_ne hbot)
+    · exact htop
+  have htop_sub : Representation.invariants (rho.comp H.subtype) = ⊤ := by
+    calc
+      Representation.invariants (rho.comp H.subtype) = S.toSubmodule := rfl
+      _ = (⊤ : Subrepresentation rho).toSubmodule :=
+        congrArg Subrepresentation.toSubmodule hS_top
+      _ = (⊤ : Submodule F V) := rfl
+  intro h hh
+  rw [MonoidHom.mem_ker]
+  ext v
+  have hv : v ∈ Representation.invariants (rho.comp H.subtype) := by
+    simp [htop_sub]
+  exact hv ⟨h, hh⟩
 
 /-- For an irreducible representation, the norm over a normal subgroup is
 either zero or that subgroup acts trivially.  This is the ordinary

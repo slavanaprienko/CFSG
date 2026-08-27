@@ -344,10 +344,10 @@ theorem localizationToResidue_principalComplement_coeff
         calc
           x * z = z * (z⁻¹ * x * z) := by group
           _ = z * x := by rw [hfixed])⟩
-    BrauerBlockReduction.localizationToResidue d (principalComplement d z x) =
+    BrauerBlockReduction.localizationToResidue d ((principalComplement d z).coeff x) =
       (BrauerBlockReduction.involutionBrauerPrincipalBlockElement d z -
         CompatibleBrauerBlock.localPrincipalBlockElementInAmbientResidue d
-          (Subgroup.centralizer ({z} : Set G))) xC := by
+          (Subgroup.centralizer ({z} : Set G))).coeff xC := by
   let xC : Subgroup.centralizer ({z} : Set G) :=
     ⟨x, Subgroup.mem_centralizer_singleton_iff.mpr (by
       calc
@@ -355,7 +355,7 @@ theorem localizationToResidue_principalComplement_coeff
         _ = z * x := by rw [hfixed])⟩
   have h := congrArg (fun q : MonoidAlgebra
       (BrauerBlockReduction.principalResidueField d)
-      (Subgroup.centralizer ({z} : Set G)) => q xC)
+      (Subgroup.centralizer ({z} : Set G)) => q.coeff xC)
     (centralizerRestriction_reduce_principalComplement_eq_sub d z hfactor)
   simpa [xC, BrauerMapScratch.centralizerRestriction_apply,
     MonoidAlgebra.mapRingHom_apply] using h
@@ -374,7 +374,7 @@ theorem fixed_coeff_mem_maximalIdeal_principalComplement_iff
         CompatibleBrauerBlock.localPrincipalBlockElementInAmbientResidue d
           (Subgroup.centralizer ({z} : Set G))) :
     (∀ x : G, z⁻¹ * x * z = x →
-        principalComplement d z x ∈
+        (principalComplement d z).coeff x ∈
           IsLocalRing.maximalIdeal (Localization.AtPrime d.primeIdeal)) ↔
       BrauerBlockReduction.involutionBrauerPrincipalBlockElement d z =
         CompatibleBrauerBlock.localPrincipalBlockElementInAmbientResidue d
@@ -394,34 +394,33 @@ theorem fixed_coeff_mem_maximalIdeal_principalComplement_iff
     have hmem := hcoeff x hfixed
     have hzero :
         BrauerBlockReduction.localizationToResidue d
-            (principalComplement d z x) = 0 := by
+            ((principalComplement d z).coeff x) = 0 := by
       rw [BlockPrimitivity.localizationToResidue_eq_zero_iff_not_isUnit]
       exact mem_nonunits_iff.mp ((IsLocalRing.mem_maximalIdeal _).mp hmem)
     have hvalue := localizationToResidue_principalComplement_coeff
       d z x hfixed hfactor
     have hvalue' :
         BrauerBlockReduction.localizationToResidue d
-            (principalComplement d z x) =
+            ((principalComplement d z).coeff x) =
           (BrauerBlockReduction.involutionBrauerPrincipalBlockElement d z -
             CompatibleBrauerBlock.localPrincipalBlockElementInAmbientResidue d
-              (Subgroup.centralizer ({z} : Set G))) xC := by
+              (Subgroup.centralizer ({z} : Set G))).coeff xC := by
       simpa [x] using hvalue
     have hsub :
-        BrauerBlockReduction.involutionBrauerPrincipalBlockElement d z xC -
-          CompatibleBrauerBlock.localPrincipalBlockElementInAmbientResidue d
-            (Subgroup.centralizer ({z} : Set G)) xC = 0 := by
+        (BrauerBlockReduction.involutionBrauerPrincipalBlockElement d z).coeff xC -
+          (CompatibleBrauerBlock.localPrincipalBlockElementInAmbientResidue d
+            (Subgroup.centralizer ({z} : Set G))).coeff xC = 0 := by
       calc
         _ = (BrauerBlockReduction.involutionBrauerPrincipalBlockElement d z -
               CompatibleBrauerBlock.localPrincipalBlockElementInAmbientResidue d
-                (Subgroup.centralizer ({z} : Set G))) xC :=
-            (Finsupp.sub_apply _ _ xC).symm
+                (Subgroup.centralizer ({z} : Set G))).coeff xC := rfl
         _ = BrauerBlockReduction.localizationToResidue d
-              (principalComplement d z x) := hvalue'.symm
+              ((principalComplement d z).coeff x) := hvalue'.symm
         _ = 0 := hzero
     exact sub_eq_zero.mp hsub
   · intro heq x hfixed
     rw [IsLocalRing.mem_maximalIdeal]
-    change ¬ IsUnit (principalComplement d z x)
+    change ¬ IsUnit ((principalComplement d z).coeff x)
     rw [← BlockPrimitivity.localizationToResidue_eq_zero_iff_not_isUnit]
     rw [localizationToResidue_principalComplement_coeff d z x hfixed hfactor,
       heq, sub_self]

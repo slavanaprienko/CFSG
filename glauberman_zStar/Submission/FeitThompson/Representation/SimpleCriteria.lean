@@ -1,9 +1,9 @@
 module
 
 public import Submission.FeitThompson.Representation.Foundations
-public import Submission.FeitThompson.Representation.RepEquiv
-public import Submission.FeitThompson.Representation.Induction
-public import Submission.FeitThompson.Representation.Maschke
+public import Theory.Representation.RepEquiv
+public import Theory.Representation.Induction
+public import Theory.Representation.Maschke
 public import Mathlib.Analysis.Complex.Polynomial.Basic
 public import Mathlib.RepresentationTheory.FinGroupCharZero
 public import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
@@ -157,7 +157,8 @@ public theorem irreducible_iff_character_norm_one
               congr 1
               refine Finset.sum_congr rfl ?_
               intro g _hg
-              rw [(representation_character_inv_eq_star_character ρ g).symm]
+              rw [(Theory.Representation.representation_character_inv_eq_star_character
+                ρ g).symm]
       _ = (Module.finrank ℂ (Representation.IntertwiningMap ρ ρ) : ℂ) := by
             simpa using
               (Representation.card_inv_mul_sum_char_mul_char_eq_finrank
@@ -209,16 +210,16 @@ public theorem equiv_of_irreducible_char_eq
     {V : Type*} [AddCommGroup V] [Module F V] [FiniteDimensional F V]
     {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
     {ρ : Representation F G V} {σ : Representation F G W}
-    [IsIrreducible ρ] [IsIrreducible σ]
+    [Representation.IsIrreducible ρ] [Representation.IsIrreducible σ]
     (hc : ¬ ringChar F ∣ Nat.card G)
     (hchar : ρ.character = σ.character) :
-    Nonempty (Equiv σ ρ) := by
+    Nonempty (Representation.Equiv σ ρ) := by
   letI : Fintype G := Fintype.ofFinite G
   have hcard_ne_zero : (Nat.card G : F) ≠ 0 := by
     intro hzero
     exact hc ((ringChar.spec F (Nat.card G)).1 hzero)
   letI : Invertible (Nat.card G : F) := invertibleOfNonzero hcard_ne_zero
-  by_cases hE : Nonempty (Equiv σ ρ)
+  by_cases hE : Nonempty (Representation.Equiv σ ρ)
   · exact hE
   · have horth := Representation.char_orthonormal (ρ := ρ) (σ := σ)
     have hself := Representation.char_orthonormal (ρ := ρ) (σ := ρ)
@@ -231,7 +232,8 @@ public theorem equiv_of_irreducible_char_eq
       simpa [hchar] using horthσ
     have hself' :
         (Nat.card G : F)⁻¹ * ∑ g : G, ρ.character g * ρ.character g⁻¹ = (1 : F) := by
-      simpa [show Nonempty (Equiv ρ ρ) from ⟨Representation.Equiv.refl ρ⟩] using hself
+      simpa [show Nonempty (Representation.Equiv ρ ρ) from
+        ⟨Representation.Equiv.refl ρ⟩] using hself
     exact False.elim (zero_ne_one (horth'.symm.trans hself'))
 set_option backward.isDefEq.respectTransparency false in
 /-- The one-dimensional trivial complex representation is irreducible. -/
@@ -242,17 +244,4 @@ public theorem trivial_complex_irreducible
   exact is_simple_module_of_finrank_eq_one
     (K := ℂ) (A := MonoidAlgebra ℂ G)
     (V := (Representation.trivial ℂ G ℂ).asModule) (CommSemiring.finrank_self ℂ)
-/-- Custom bundled form of the equal-character irreducible equivalence theorem. -/
-public theorem repEquiv_of_irreducible_char_eq
-    {G : Type*} [Group G] [Finite G]
-    {F : Type*} [Field F] [IsAlgClosed F]
-    {V : Type*} [AddCommGroup V] [Module F V] [FiniteDimensional F V]
-    {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
-    {ρ : Representation F G V} {σ : Representation F G W}
-    [IsIrreducible ρ] [IsIrreducible σ]
-    (hc : ¬ ringChar F ∣ Nat.card G)
-    (hchar : ρ.character = σ.character) :
-    Nonempty (σ ≃ₗ ρ) := by
-  rcases equiv_of_irreducible_char_eq (ρ := ρ) (σ := σ) hc hchar with ⟨e⟩
-  exact ⟨RepEquiv.ofRepresentationEquiv e⟩
 end Representation

@@ -62,7 +62,7 @@ theorem projective_range_principalComplement_of_brauer_eq
       (CompatibleBrauerBlock.localPrincipalBlockElementInAmbientResidue_isIdempotent
         d (Subgroup.centralizer ({z} : Set G))).eq
   have hfixed : ∀ x : G, z⁻¹ * x * z = x →
-      NagaoComplement.principalComplement d z x ∈
+      (NagaoComplement.principalComplement d z).coeff x ∈
         IsLocalRing.maximalIdeal (Localization.AtPrime d.primeIdeal) :=
     (NagaoComplement.fixed_coeff_mem_maximalIdeal_principalComplement_iff
       d z hfactor).2 heq
@@ -73,4 +73,3 @@ theorem projective_range_principalComplement_of_brauer_eq
 
 end NagaoPrincipalRange
 end Submission.ZStar
-

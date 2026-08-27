@@ -1,4 +1,5 @@
 import Submission.ZStar.OddCommutators
+import Submission.FeitThompson.Representation.Foundations
 
 /-!
 # The group-theoretic part of Glauberman Step (V)

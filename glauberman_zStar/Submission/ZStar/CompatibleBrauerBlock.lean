@@ -187,9 +187,9 @@ theorem localPrincipalBlockElementInAmbientResidue_isIdempotent
 @[simp] theorem localPrincipalBlockElementInAmbientResidue_apply
     (d : PrincipalCongruenceBlockData G) (H : Subgroup G)
     (h : H) :
-    localPrincipalBlockElementInAmbientResidue d H h =
+    (localPrincipalBlockElementInAmbientResidue d H).coeff h =
       compatibleSubgroupResidueFieldInclusion d H
-        (BrauerBlockReduction.reducedPrincipalBlockElement (localData d H) h) := by
+        ((BrauerBlockReduction.reducedPrincipalBlockElement (localData d H)).coeff h) := by
   exact MonoidAlgebra.mapRingHom_apply _ _ _
 
 /-- The transported local principal-block idempotent has augmentation one. -/

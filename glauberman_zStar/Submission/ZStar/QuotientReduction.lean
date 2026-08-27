@@ -1,5 +1,4 @@
-import Mathlib
-import Submission.FeitThompson.FinalTheorem
+import FeitThompson.FinalTheorem
 import Submission.ZStar.LocalReduction
 import Submission.ZStar.CoreFree
 

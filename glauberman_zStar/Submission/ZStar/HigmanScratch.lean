@@ -32,7 +32,7 @@ theorem projective_of_relative_trace_id
   let α := Module.Free.ChooseBasisIndex R M
   let W := Representation.free R P α
   let oneCoeff : R →ₗ[R] MonoidAlgebra R P :=
-    Finsupp.lsingle (1 : P)
+    MonoidAlgebra.lsingle (R := R) (1 : P)
   let equivW := Representation.finsuppLEquivFreeAsModule R P α
   let qF : (α →₀ MonoidAlgebra R P) →ₗ[MonoidAlgebra R P] M :=
     Finsupp.linearCombination (MonoidAlgebra R P) (fun i : α => b i)

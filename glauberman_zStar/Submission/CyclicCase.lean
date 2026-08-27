@@ -1,4 +1,5 @@
-import Mathlib
+import Mathlib.GroupTheory.Transfer
+import Mathlib.Tactic.Group
 open Subgroup
 
 namespace Submission.CyclicCase

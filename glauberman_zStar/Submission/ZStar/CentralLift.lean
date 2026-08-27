@@ -30,11 +30,12 @@ theorem exists_monoidAlgebra_lift_mem_center
   have representative_spec (c : ConjClasses G) :
       ConjClasses.mk (representative c) = c :=
     Classical.choose_spec (ConjClasses.exists_rep c)
-  let coeff : G → R := fun g => lift (f (representative (ConjClasses.mk g)))
-  let x : MonoidAlgebra R G := Finsupp.equivFunOnFinite.symm coeff
-  have x_apply (g : G) : x g = coeff g := rfl
+  let coeff : G → R := fun g => lift (f.coeff (representative (ConjClasses.mk g)))
+  let x : MonoidAlgebra R G :=
+    MonoidAlgebra.ofCoeff (Finsupp.equivFunOnFinite.symm coeff)
+  have x_apply (g : G) : x.coeff g = coeff g := rfl
   have x_class_constant {a b : G}
-      (hab : ConjClasses.mk a = ConjClasses.mk b) : x a = x b := by
+      (hab : ConjClasses.mk a = ConjClasses.mk b) : x.coeff a = x.coeff b := by
     rw [x_apply, x_apply]
     simp only [coeff, hab]
   have hxcenter : x ∈ Set.center (MonoidAlgebra R G) := by
@@ -59,11 +60,10 @@ theorem exists_monoidAlgebra_lift_mem_center
     rw [← ConjClasses.mk_eq_mk_iff_isConj]
     exact (representative_spec (ConjClasses.mk g)).symm
   rcases isConj_iff.mp hconj with ⟨h, hh⟩
-  exact (congrArg (f : G → S) hh).symm.trans
+  exact (congrArg (fun y : G ↦ f.coeff y) hh).symm.trans
     (CentralIdempotentSupport.coeff_conj_eq_of_mem_center
       (f : MonoidAlgebra S G) hf h g)
 
 end CentralLift
 
 end Submission.ZStar
-

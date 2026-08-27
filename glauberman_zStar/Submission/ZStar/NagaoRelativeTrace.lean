@@ -33,15 +33,15 @@ lemma evalPlus_sub_evalMinus_eq_two_mul_coeff
     (a : MonoidAlgebra R C) :
     NagaoTrace.evalPlus R C a -
         NagaoTrace.evalMinus c hc hc2 hall a =
-      (2 : R) * a c := by
+      (2 : R) * a.coeff c := by
   induction a using MonoidAlgebra.induction_linear with
   | zero =>
-      have hz : (0 : MonoidAlgebra R C) c = 0 := rfl
+      have hz : (0 : MonoidAlgebra R C).coeff c = 0 := rfl
       rw [map_zero, map_zero, hz]
       ring
   | add a b ha hb =>
       rw [map_add, map_add]
-      change _ = 2 * (a c + b c)
+      change _ = 2 * (a.coeff c + b.coeff c)
       linear_combination ha + hb
   | single g r =>
       rcases hall g with hg | hg
@@ -61,7 +61,7 @@ lemma trace_mulLeft_eq_two_mul_coeff_one
     {R C : Type*} [CommRing R] [CommGroup C] [Finite C]
     (hC : Nat.card C = 2) (a : MonoidAlgebra R C) :
     LinearMap.trace R (MonoidAlgebra R C)
-        (LinearMap.mulLeft R a) = (2 : R) * a 1 := by
+        (LinearMap.mulLeft R a) = (2 : R) * a.coeff 1 := by
   classical
   obtain ⟨c, hc, hc_unique⟩ := (Nat.card_eq_two_iff' (1 : C)).mp hC
   have hall (g : C) : g = 1 ∨ g = c := by
@@ -75,14 +75,14 @@ lemma trace_mulLeft_eq_two_mul_coeff_one
       apply hc
       apply mul_left_cancel (a := c)
       simpa using h
-  let b : Basis C R (MonoidAlgebra R C) := Finsupp.basisSingleOne
+  let b : Basis C R (MonoidAlgebra R C) := MonoidAlgebra.basis C R
   rw [LinearMap.trace_eq_matrix_trace R b, Matrix.trace]
   have hdiag (g : C) :
       ((LinearMap.toMatrix b b) (LinearMap.mulLeft R a)).diag g =
-        a (g * g⁻¹) := by
-    change Algebra.leftMulMatrix b a g g = a (g * g⁻¹)
+        a.coeff (g * g⁻¹) := by
+    change Algebra.leftMulMatrix b a g g = a.coeff (g * g⁻¹)
     rw [Algebra.leftMulMatrix_eq_repr_mul]
-    change (a * MonoidAlgebra.single g 1 : MonoidAlgebra R C) g = _
+    change (a * MonoidAlgebra.single g 1 : MonoidAlgebra R C).coeff g = _
     rw [MonoidAlgebra.mul_single_apply]
     simp
   simp_rw [hdiag]
@@ -118,7 +118,7 @@ theorem trace_generator_mul_of_free_groupAlgebra
             (Module.Free.chooseBasis (MonoidAlgebra R C) M)).map
               (NagaoTrace.evalMinus c hc hc2 hall)) := by
   classical
-  let bC : Basis C R (MonoidAlgebra R C) := Finsupp.basisSingleOne
+  let bC : Basis C R (MonoidAlgebra R C) := MonoidAlgebra.basis C R
   let bM : Basis (Module.Free.ChooseBasisIndex (MonoidAlgebra R C) M)
       (MonoidAlgebra R C) M := Module.Free.chooseBasis (MonoidAlgebra R C) M
   let L : M →ₗ[MonoidAlgebra R C] M :=
@@ -150,13 +150,13 @@ theorem trace_generator_mul_of_free_groupAlgebra
     rw [LinearMap.toMatrix_apply]
   rw [hUii]
   have hc_inv : c⁻¹ = c := inv_eq_of_mul_eq_one_right hc2
-  have hcoeff : (MonoidAlgebra.of R C c * a) 1 = a c := by
+  have hcoeff : (MonoidAlgebra.of R C c * a).coeff 1 = a.coeff c := by
     rw [MonoidAlgebra.of_apply, MonoidAlgebra.single_mul_apply]
     simp [hc_inv]
   calc
     (∑ j : C,
         Algebra.leftMulMatrix bC (MonoidAlgebra.of R C c * a) j j) =
-        (2 : R) * (MonoidAlgebra.of R C c * a) 1 := by
+        (2 : R) * (MonoidAlgebra.of R C c * a).coeff 1 := by
       have h := trace_mulLeft_eq_two_mul_coeff_one
         (R := R) (C := C)
         (by
@@ -165,7 +165,7 @@ theorem trace_generator_mul_of_free_groupAlgebra
         (MonoidAlgebra.of R C c * a)
       rw [LinearMap.trace_eq_matrix_trace R bC, Matrix.trace] at h
       exact h
-    _ = (2 : R) * a c := by
+    _ = (2 : R) * a.coeff c := by
       rw [hcoeff]
 
 end NagaoRelativeTrace

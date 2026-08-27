@@ -78,10 +78,11 @@ noncomputable def normalizerConjugate
     (Q : Subgroup G) (n : Subgroup.normalizer (Q : Set G))
     (a : MonoidAlgebra R (Subgroup.centralizer (Q : Set G)))
     (x : Subgroup.centralizer (Q : Set G)) :
-    normalizerConjugate R Q n a x =
-      a ((centralizerConjEquiv Q n).symm x) := by
-  exact MonoidAlgebra.mapDomainRingEquiv_apply
-    (centralizerConjEquiv Q n) a x
+    (normalizerConjugate R Q n a).coeff x =
+      a.coeff ((centralizerConjEquiv Q n).symm x) := by
+  simpa [normalizerConjugate] using DFunLike.congr_fun
+    (MonoidAlgebra.coeff_mapDomainRingEquiv
+      (centralizerConjEquiv Q n) a) x
 
 @[simp] theorem normalizerConjugate_one
     {R : Type u} {G : Type v} [CommRing R] [Group G]
@@ -254,7 +255,8 @@ theorem subgroupRestriction_mapDomain_centralizerConjEquiv_eq_self
       DefectSupport.subgroupCentralizerRestriction R Q e := by
   ext x
   rw [MonoidAlgebra.mapDomainRingEquiv_apply]
-  change e (((centralizerConjEquiv Q n).symm x : _) : G) = e (x : G)
+  change e.coeff (((centralizerConjEquiv Q n).symm x : _) : G) =
+    e.coeff (x : G)
   rw [centralizerConjEquiv_symm_coe]
   simpa only [inv_inv] using
     (CentralIdempotentSupport.coeff_conj_eq_of_mem_center e he
@@ -500,7 +502,7 @@ theorem normalizerAlgebraEmbedding_injective
     {R : Type u} {G : Type v} [CommRing R] [Group G]
     (Q : Subgroup G) :
     Function.Injective (normalizerAlgebraEmbedding R Q) := by
-  apply Finsupp.mapDomain_injective
+  apply MonoidAlgebra.mapDomain_injective
   intro c e hce
   apply Subtype.ext
   exact congrArg

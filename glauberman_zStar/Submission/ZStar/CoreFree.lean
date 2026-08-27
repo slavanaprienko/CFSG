@@ -1,5 +1,4 @@
-import Mathlib
-import Submission.FeitThompson.FinalTheorem
+import FeitThompson.FinalTheorem
 import Submission.ZStar.BlockArgument
 import Submission.ZStar.CoreFreeAssembly
 import Submission.ZStar.MinimalSteps

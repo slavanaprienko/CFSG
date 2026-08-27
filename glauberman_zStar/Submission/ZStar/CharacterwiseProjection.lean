@@ -225,7 +225,7 @@ theorem map_localPrincipalBlockElementInAmbientLocalization
     ext g
     simp only [MonoidAlgebra.mapRingHom_apply]
     exact DFunLike.congr_fun hhom
-      ((BlockOrthogonality.localizedPrincipalBlockElement l) g)
+      ((BlockOrthogonality.localizedPrincipalBlockElement l).coeff g)
   exact hmap.trans hlocal0
 
 theorem map_principalComplement
@@ -278,7 +278,7 @@ theorem mul_complexCharacterProjectorNumerator_coeff_one
     | single g r =>
         change
           (MonoidAlgebra.single g r *
-              IsotypicLattice.complexCharacterProjectorNumerator d i) 1 = _
+              IsotypicLattice.complexCharacterProjectorNumerator d i).coeff 1 = _
         rw [MonoidAlgebra.single_mul_apply]
         rw [IsotypicLattice.complexCharacterProjectorNumerator_apply]
         simp only [mul_one, inv_inv]

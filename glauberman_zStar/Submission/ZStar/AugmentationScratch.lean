@@ -26,11 +26,11 @@ noncomputable def augmentation
 theorem augmentation_apply
     {R : Type u} {G : Type v} [CommSemiring R] [Monoid G] [Finite G]
     (a : MonoidAlgebra R G) :
-    augmentation R G a = ∑ g : G, a g := by
+    augmentation R G a = ∑ g : G, a.coeff g := by
   change ((MonoidAlgebra.lift R R G) (1 : G →* R)) a = _
   rw [MonoidAlgebra.lift_apply]
   simp only [MonoidHom.one_apply, smul_eq_mul, mul_one]
-  exact Finsupp.sum_fintype a (fun _ r => r) (by simp)
+  exact Finsupp.sum_fintype a.coeff (fun _ r => r) (by simp)
 
 /-- Augmentation is natural under change of coefficient ring. -/
 theorem augmentation_mapRingHom
@@ -70,7 +70,7 @@ theorem augmentation_centralizerRestriction
       augmentation R G e := by
   rw [augmentation_apply, augmentation_apply]
   exact (BrauerMapScratch.sum_centralizer_of_conj_invariant
-    z hz (fun g : G => e g) (fun g =>
+    z hz (fun g : G => e.coeff g) (fun g =>
       CentralIdempotentSupport.coeff_conj_eq_of_mem_center
         e he z g)).symm
 

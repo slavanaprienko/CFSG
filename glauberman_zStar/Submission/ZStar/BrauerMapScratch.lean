@@ -29,14 +29,16 @@ def centralizerRestriction
     (z : G) :
     MonoidAlgebra R G →+ MonoidAlgebra R
       (Subgroup.centralizer ({z} : Set G)) :=
-  Finsupp.comapDomain.addMonoidHom
+  MonoidAlgebra.comapDomainAddMonoidHom
+    (Subgroup.centralizer ({z} : Set G)).subtype
     (Subgroup.centralizer ({z} : Set G)).subtype_injective
 
 @[simp] theorem centralizerRestriction_apply
     {R : Type u} {G : Type v} [Semiring R] [Group G]
     (z : G) (a : MonoidAlgebra R G)
     (h : Subgroup.centralizer ({z} : Set G)) :
-    centralizerRestriction R z a h = a (h : G) := rfl
+    (centralizerRestriction R z a).coeff h = a.coeff (h : G) := by
+  simp [centralizerRestriction]
 
 /-- Coefficient restriction commutes with change of coefficient ring.  This
 is the reduction-modulo-`2` square used for block idempotents. -/
@@ -58,19 +60,15 @@ theorem centralizerRestriction_mapRingHom
     centralizerRestriction R z (1 : MonoidAlgebra R G) = 1 := by
   classical
   ext h
-  change (Finsupp.single 1 1 : G →₀ R) (h : G) =
-    (Finsupp.single 1 1 :
-      Subgroup.centralizer ({z} : Set G) →₀ R) h
-  simp only [Finsupp.single_apply]
-  congr 1
-  apply propext
-  constructor
-  · intro hh
-    apply Subtype.ext
-    simpa using hh
-  · intro hh
-    subst h
-    rfl
+  rw [centralizerRestriction_apply]
+  by_cases hh : h = 1
+  · subst h
+    simp
+  · have hcoe : (h : G) ≠ 1 := by
+      intro hcoe
+      apply hh
+      exact Subtype.ext hcoe
+    simp [MonoidAlgebra.one_def, Finsupp.single_apply, hh, hcoe]
 
 /-- Restricting the coefficients of a central group-algebra element to a
 centralizer still gives a central element of the centralizer group algebra. -/
@@ -107,10 +105,10 @@ theorem centralizerRestriction_mem_center
 private theorem monoidAlgebra_mul_apply_eq_sum
     {R : Type u} {G : Type v} [Semiring R] [Group G] [Finite G]
     (a b : MonoidAlgebra R G) (h : G) :
-    (a * b) h = ∑ g : G, a g * b (g⁻¹ * h) := by
-  rw [MonoidAlgebra.mul_apply_left]
-  exact Finsupp.sum_fintype a
-    (fun g r => r * b (g⁻¹ * h)) (by simp)
+    (a * b).coeff h = ∑ g : G, a.coeff g * b.coeff (g⁻¹ * h) := by
+  rw [MonoidAlgebra.coeff_mul_apply_left]
+  exact Finsupp.sum_fintype a.coeff
+    (fun g r => r * b.coeff (g⁻¹ * h)) (by simp)
 
 private theorem conjugateBy_involution_involutive
     {G : Type v} [Group G] {z : G} (hz : z * z = 1) (g : G) :
@@ -241,7 +239,7 @@ theorem centralizerRestriction_mul_of_mem_center
   rw [monoidAlgebra_mul_apply_eq_sum]
   simp only [centralizerRestriction_apply, Subgroup.coe_inv,
     Subgroup.coe_mul]
-  let F : G → R := fun g => a g * b (g⁻¹ * (h : G))
+  let F : G → R := fun g => a.coeff g * b.coeff (g⁻¹ * (h : G))
   have hzinv : z⁻¹ = z := inv_eq_of_mul_eq_one_right hz
   have hh : (h : G) * z = z * (h : G) :=
     Subgroup.mem_centralizer_singleton_iff.mp h.2

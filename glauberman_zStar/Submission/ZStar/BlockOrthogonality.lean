@@ -1,6 +1,6 @@
 import Submission.ZStar.PrincipalBlockConstruction
 import Submission.ZStar.CentralIdempotentSupport
-import Submission.BenderSuzuki.External.Suzuki.VI.formula_1_7
+import BenderSuzuki.External.Suzuki.VI.formula_1_7
 import Mathlib.Algebra.MonoidAlgebra.MapDomain
 import Mathlib.RingTheory.Localization.AtPrime.Basic
 
@@ -99,7 +99,7 @@ private theorem classSum_coeff
 private theorem classSum_apply
     {G : Type u} [Group G] [Finite G] [DecidableEq (ConjClasses G)]
     (R : Type v) [CommRing R] (c : ConjClasses G) (g : G) :
-    classSum R c g = if ConjClasses.mk g = c then 1 else 0 :=
+    (classSum R c).coeff g = if ConjClasses.mk g = c then 1 else 0 :=
   classSum_coeff R c g
 
 private theorem classSum_single_comm
@@ -288,9 +288,9 @@ private noncomputable def coeffInvClassFunction
     (z : MonoidAlgebra ℂ G)
     (hz : ∀ a : MonoidAlgebra ℂ G, a * z = z * a) :
     Representation.ClassFunction G :=
-  Representation.classFunctionOfInvariant (fun g : G => z g⁻¹) (by
+  Representation.classFunctionOfInvariant (fun g : G => z.coeff g⁻¹) (by
     intro g h
-    have heq := congrArg (fun q : MonoidAlgebra ℂ G => q (h * g⁻¹))
+    have heq := congrArg (fun q : MonoidAlgebra ℂ G => q.coeff (h * g⁻¹))
       (hz (MonoidAlgebra.single h (1 : ℂ)))
     simpa [MonoidAlgebra.single_mul_apply, MonoidAlgebra.mul_single_apply,
       mul_assoc] using heq.symm)
@@ -300,7 +300,7 @@ private noncomputable def coeffInvClassFunction
     (z : MonoidAlgebra ℂ G)
     (hz : ∀ a : MonoidAlgebra ℂ G, a * z = z * a)
     (g : G) :
-    coeffInvClassFunction z hz (ConjClasses.mk g) = z g⁻¹ := rfl
+    coeffInvClassFunction z hz (ConjClasses.mk g) = z.coeff g⁻¹ := rfl
 
 private theorem groupAlgebra_trace
     {G : Type u} [Group G] [Finite G]
@@ -348,7 +348,7 @@ private theorem inner_coeffInv_eq
         (lambda * ρ.character 1) := by
   classical
   have hinvsum :
-      (∑ g : G, z g⁻¹ * star (ρ.character g)) =
+      (∑ g : G, z.coeff g⁻¹ * star (ρ.character g)) =
         ∑ g : G, z.coeff g * ρ.character g := by
     let f : G → ℂ := fun g => z.coeff g * ρ.character g
     calc
@@ -362,7 +362,7 @@ private theorem inner_coeffInv_eq
       _ = ∑ g : G, z.coeff g * ρ.character g := rfl
   rw [Representation.classFunctionInner]
   change (Nat.card G : ℂ)⁻¹ *
-      (∑ g : G, z g⁻¹ * star (ρ.character g)) = _
+      (∑ g : G, z.coeff g⁻¹ * star (ρ.character g)) = _
   rw [hinvsum, ← groupAlgebra_trace ρ z, haction, map_smul]
   simp [Representation.character]
 
@@ -397,10 +397,10 @@ theorem coeff_eq_inv_card_mul_sum_scalar_degree_character
   have hexpand :=
     Representation.completeFamily_apply_eq_sum_inner hchi phi
       (ConjClasses.mk g⁻¹)
-  change z.coeff (g⁻¹)⁻¹ =
+  change coeffInvClassFunction z hz (ConjClasses.mk g⁻¹) =
       ∑ i : I, Representation.classFunctionInner phi (chi i) *
         chi i (ConjClasses.mk g⁻¹) at hexpand
-  rw [inv_inv] at hexpand
+  rw [coeffInvClassFunction_mk, inv_inv] at hexpand
   rw [hexpand]
   simp_rw [hinner]
   rw [Finset.mul_sum]
@@ -1116,7 +1116,7 @@ private theorem localizedGroupAlgebraToComplex_injective
   intro x y hxy
   ext g
   apply localizationToComplex_injective d
-  have hg := congrArg (fun z : MonoidAlgebra ℂ G => z g) hxy
+  have hg := congrArg (fun z : MonoidAlgebra ℂ G => z.coeff g) hxy
   simpa [localizedGroupAlgebraToComplex,
     MonoidAlgebra.mapRingHom_apply] using hg
 
@@ -1135,7 +1135,7 @@ theorem localizedPrincipalBlockElement_isIdempotent
 identity on the trivial representation. -/
 theorem principalBlockElement_sum_coeff_eq_one
     (d : PrincipalCongruenceBlockData G) :
-    ∑ g : G, principalBlockElement d g = 1 := by
+    ∑ g : G, (principalBlockElement d).coeff g = 1 := by
   let rho0 : Representation ℂ G (Fin 1 → ℂ) :=
     Representation.trivial ℂ G (Fin 1 → ℂ)
   have hchar : d.chi d.principal = rho0.characterClassFunction := by
@@ -1151,15 +1151,15 @@ theorem principalBlockElement_sum_coeff_eq_one
   have hone := congrArg
     (fun f : Module.End ℂ (Fin 1 → ℂ) => f (fun _ => 1) 0) haction'
   have hactionSum (a : MonoidAlgebra ℂ G) :
-      (rho0.asAlgebraHom a (fun _ => 1)) 0 = ∑ g : G, a g := by
+      (rho0.asAlgebraHom a (fun _ => 1)) 0 = ∑ g : G, a.coeff g := by
     induction a using MonoidAlgebra.induction_linear with
     | zero =>
         change 0 = ∑ _g : G, (0 : ℂ)
         simp
     | add a b ha hb =>
         simp only [map_add, LinearMap.add_apply, Pi.add_apply, ha, hb]
-        change (∑ g : G, a g) + (∑ g : G, b g) =
-          ∑ g : G, (a g + b g)
+        change (∑ g : G, a.coeff g) + (∑ g : G, b.coeff g) =
+          ∑ g : G, (a.coeff g + b.coeff g)
         rw [Finset.sum_add_distrib]
     | single g r => simp
   rw [hactionSum] at hone
@@ -1171,22 +1171,22 @@ theorem principalBlockElement_coeff_eq_localized
       localizationToComplex d.primeIdeal
         ((localizedPrincipalBlockElement d).coeff g) := by
   change (MonoidAlgebra.mapRingHom G (localizationToComplex d.primeIdeal)
-      (localizedPrincipalBlockElement d)) g =
+      (localizedPrincipalBlockElement d)).coeff g =
     localizationToComplex d.primeIdeal
-      ((localizedPrincipalBlockElement d) g)
+      ((localizedPrincipalBlockElement d).coeff g)
   exact MonoidAlgebra.mapRingHom_apply _ _ _
 
 /-- The integral-localized principal-block selector also has augmentation
 one.  This is detected after embedding the localization into `ℂ`. -/
 theorem localizedPrincipalBlockElement_sum_coeff_eq_one
     (d : PrincipalCongruenceBlockData G) :
-    ∑ g : G, localizedPrincipalBlockElement d g = 1 := by
+    ∑ g : G, (localizedPrincipalBlockElement d).coeff g = 1 := by
   apply localizationToComplex_injective d
   rw [map_one, map_sum]
   calc
     ∑ g : G, localizationToComplex d.primeIdeal
-        (localizedPrincipalBlockElement d g) =
-        ∑ g : G, principalBlockElement d g := by
+        ((localizedPrincipalBlockElement d).coeff g) =
+        ∑ g : G, (principalBlockElement d).coeff g := by
       apply Finset.sum_congr rfl
       intro g _hg
       exact (principalBlockElement_coeff_eq_localized d g).symm
@@ -1270,7 +1270,7 @@ theorem localizedPrincipalBlockElement_coeff_involution_eq_zero
       S.subtype c hc s hphi hsq (localizedPrincipalBlockElement d)
       (localizedPrincipalBlockElement_isIdempotent d)
       (localizedPrincipalBlockElement_mem_center d)
-  change localizedPrincipalBlockElement d s = 0
+  change (localizedPrincipalBlockElement d).coeff s = 0
   exact hzero
 
 theorem weak_block_orthogonality_of_localized_support

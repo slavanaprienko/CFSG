@@ -84,7 +84,8 @@ noncomputable def reduceLocalizedGroupAlgebra
 @[simp] theorem reduceLocalizedGroupAlgebra_apply
     (d : PrincipalCongruenceBlockData G)
     (a : MonoidAlgebra (Localization.AtPrime d.primeIdeal) G) (g : G) :
-    reduceLocalizedGroupAlgebra d a g = localizationToResidue d (a g) := by
+    (reduceLocalizedGroupAlgebra d a).coeff g =
+      localizationToResidue d (a.coeff g) := by
   exact MonoidAlgebra.mapRingHom_apply _ _ _
 
 /-- Mapping coefficients along a commutative-ring homomorphism preserves
@@ -136,8 +137,8 @@ theorem centralizerRestriction_mem_center
       simp only [MonoidAlgebra.single_mul_apply,
         MonoidAlgebra.mul_single_apply,
         BrauerMapScratch.centralizerRestriction_apply]
-      change r * e ((g : G)⁻¹ * (x : G)) =
-        e ((x : G) * (g : G)⁻¹) * r
+      change r * e.coeff ((g : G)⁻¹ * (x : G)) =
+        e.coeff ((x : G) * (g : G)⁻¹) * r
       have hconj :
           (g : G)⁻¹ * ((x : G) * (g : G)⁻¹) * ((g : G)⁻¹)⁻¹ =
             (g : G)⁻¹ * (x : G) := by group

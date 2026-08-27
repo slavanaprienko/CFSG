@@ -1,4 +1,4 @@
-import Submission.FeitThompson.PCore.CentralizerControl
+import FeitThompson.PCore.CentralizerControl
 import Submission.ZStar.CompatibleLocalBlock
 import Submission.ZStar.PrincipalBlockKernel
 import Submission.ZStar.CentralIdempotentSupport

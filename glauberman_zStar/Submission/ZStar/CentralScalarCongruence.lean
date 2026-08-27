@@ -43,7 +43,7 @@ noncomputable def centralClassCoefficient
     {S : Type*} [CommRing S]
   (z : Subring.center (MonoidAlgebra S G))
   (c : ConjClasses G) : S :=
-  (z : MonoidAlgebra S G) (classRepresentative c)
+  (z : MonoidAlgebra S G).coeff (classRepresentative c)
 
 omit [Finite G] in
 /-- The class coefficient agrees with the coefficient at every representative
@@ -52,11 +52,11 @@ theorem centralClassCoefficient_eq
     {S : Type*} [CommRing S]
     (z : Subring.center (MonoidAlgebra S G))
     (c : ConjClasses G) (g : G) (hg : ConjClasses.mk g = c) :
-    centralClassCoefficient z c = (z : MonoidAlgebra S G) g := by
+    centralClassCoefficient z c = (z : MonoidAlgebra S G).coeff g := by
   have hconj : IsConj g (classRepresentative c) := by
     rw [← ConjClasses.mk_eq_mk_iff_isConj, hg, mk_classRepresentative]
   rcases isConj_iff.mp hconj with ⟨h, hh⟩
-  exact (congrArg (z : G → S) hh).symm.trans
+  exact (congrArg (fun x : G ↦ (z : MonoidAlgebra S G).coeff x) hh).symm.trans
     (CentralIdempotentSupport.coeff_conj_eq_of_mem_center
       (z : MonoidAlgebra S G) z.property h g)
 

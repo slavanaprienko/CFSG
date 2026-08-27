@@ -154,10 +154,10 @@ the same types. -/
 private theorem monoidAlgebra_mul_apply_eq_sum
     {R : Type u} {G : Type v} [Semiring R] [Group G] [Finite G]
     (a b : MonoidAlgebra R G) (h : G) :
-    (a * b) h = ∑ g : G, a g * b (g⁻¹ * h) := by
+    (a * b).coeff h = ∑ g : G, a.coeff g * b.coeff (g⁻¹ * h) := by
   rw [MonoidAlgebra.mul_apply_left]
-  exact Finsupp.sum_fintype a
-    (fun g r => r * b (g⁻¹ * h)) (by simp)
+  exact Finsupp.sum_fintype a.coeff
+    (fun g r => r * b.coeff (g⁻¹ * h)) (by simp)
 
 /-- The fixed points of subgroup conjugation are the elements of the subgroup
 centralizer. -/
@@ -233,7 +233,7 @@ theorem subgroupCentralizerRestriction_mul_of_mem_center
     monoidAlgebra_mul_apply_eq_sum]
   simp only [DefectSupport.subgroupCentralizerRestriction_apply,
     Subgroup.coe_inv, Subgroup.coe_mul]
-  let F : G → R := fun g => a g * b (g⁻¹ * (h : G))
+  let F : G → R := fun g => a.coeff g * b.coeff (g⁻¹ * (h : G))
   have hF : ∀ q : Q, ∀ g : G,
       F ((q : G) * g * (q : G)⁻¹) = F g := by
     intro q g
@@ -440,7 +440,7 @@ theorem augmentation_subgroupCentralizerRestriction
     AugmentationScratch.augmentation_apply]
   symm
   exact sum_eq_sum_subgroupCentralizer_of_conj_invariant Q hQ
-    (fun g : G => e g) (fun q g =>
+    (fun g : G => e.coeff g) (fun q g =>
       CentralIdempotentSupport.coeff_conj_eq_of_mem_center e he q g)
 
 theorem hasTwoCoefficientSupport_of_augmentation_ne_zero

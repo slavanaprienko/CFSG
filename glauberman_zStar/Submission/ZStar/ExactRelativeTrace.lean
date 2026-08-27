@@ -21,11 +21,11 @@ attribute [local instance] Fintype.ofFinite
 lemma coeff_mem_ideal_mul_left
     {R G : Type*} [CommRing R] [Group G]
     (I : Ideal R) (a q : MonoidAlgebra R G)
-    (hq : ∀ x : G, q x ∈ I) :
-    ∀ x : G, (a * q) x ∈ I := by
+    (hq : ∀ x : G, q.coeff x ∈ I) :
+    ∀ x : G, (a * q).coeff x ∈ I := by
   intro x
   rw [MonoidAlgebra.mul_apply_left]
-  change a.support.sum (fun g ↦ a g * q (g⁻¹ * x)) ∈ I
+  change a.coeff.support.sum (fun g ↦ a.coeff g * q.coeff (g⁻¹ * x)) ∈ I
   apply I.sum_mem
   intro g hg
   exact I.mul_mem_left _ (hq _)
@@ -33,11 +33,11 @@ lemma coeff_mem_ideal_mul_left
 lemma coeff_mem_ideal_mul_right
     {R G : Type*} [CommRing R] [Group G]
     (I : Ideal R) (q a : MonoidAlgebra R G)
-    (hq : ∀ x : G, q x ∈ I) :
-    ∀ x : G, (q * a) x ∈ I := by
+    (hq : ∀ x : G, q.coeff x ∈ I) :
+    ∀ x : G, (q * a).coeff x ∈ I := by
   intro x
   rw [MonoidAlgebra.mul_apply_right]
-  change a.support.sum (fun g ↦ q (x * g⁻¹) * a g) ∈ I
+  change a.coeff.support.sum (fun g ↦ q.coeff (x * g⁻¹) * a.coeff g) ∈ I
   apply I.sum_mem
   intro g hg
   exact I.mul_mem_right _ (hq _)
@@ -68,7 +68,7 @@ theorem exists_exact_relativeTrace_of_fixed_coeff_mem_maximalIdeal
     (f : MonoidAlgebra R G) (hf : IsIdempotentElem f)
     (hfinv : BrauerKernelRelativeTrace.conjugation R z f = f)
     (hfixed : ∀ x : G, z⁻¹ * x * z = x →
-      f x ∈ IsLocalRing.maximalIdeal R) :
+      f.coeff x ∈ IsLocalRing.maximalIdeal R) :
     ∃ c : MonoidAlgebra R G,
       f * c * f = c ∧
       f = c + BrauerKernelRelativeTrace.conjugation R z c := by
@@ -79,7 +79,7 @@ theorem exists_exact_relativeTrace_of_fixed_coeff_mem_maximalIdeal
       z hz I f hfinv hfixed
   let d : MonoidAlgebra R G :=
     f - (b + BrauerKernelRelativeTrace.conjugation R z b)
-  have hdcoeff : ∀ x : G, d x ∈ I := by
+  have hdcoeff : ∀ x : G, d.coeff x ∈ I := by
     intro x
     exact hb x
   have hconjtrace :
@@ -93,7 +93,7 @@ theorem exists_exact_relativeTrace_of_fixed_coeff_mem_maximalIdeal
     rw [map_sub, hfinv, hconjtrace]
   let c₀ : MonoidAlgebra R G := f * b * f
   let r : MonoidAlgebra R G := f * d * f
-  have hrcoeff : ∀ x : G, r x ∈ I := by
+  have hrcoeff : ∀ x : G, r.coeff x ∈ I := by
     have hleft := coeff_mem_ideal_mul_left I f d hdcoeff
     exact coeff_mem_ideal_mul_right I (f * d) f hleft
   have hrInv : BrauerKernelRelativeTrace.conjugation R z r = r := by

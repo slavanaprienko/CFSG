@@ -268,7 +268,7 @@ private lemma blockCharacters_orthonormal (i j : wedderburnIndex G) :
     congr 1
     refine Finset.sum_congr rfl ?_
     intro g _hg
-    rw [(representation_character_inv_eq_star_character
+    rw [(Theory.Representation.representation_character_inv_eq_star_character
       (matrixBlockRepresentation (G := G) j) g).symm]
   by_cases hij : i = j
   · subst j
@@ -405,7 +405,7 @@ private lemma classFunctionCentralElement_coeff (φ : ClassFunction G) (g : G) :
   simp
 
 private lemma classFunctionCentralElement_apply (φ : ClassFunction G) (g : G) :
-    classFunctionCentralElement (G := G) φ g = φ (ConjClasses.mk g⁻¹) :=
+    (classFunctionCentralElement (G := G) φ).coeff g = φ (ConjClasses.mk g⁻¹) :=
   classFunctionCentralElement_coeff φ g
 
 private noncomputable def classFunctionCentralElementLinear :
@@ -661,7 +661,7 @@ public theorem classFunction_span_irreducible_characters
         congr 1
         refine Finset.sum_congr rfl ?_
         intro g _hg
-        rw [(representation_character_inv_eq_star_character ρ g).symm]
+        rw [(Theory.Representation.representation_character_inv_eq_star_character ρ g).symm]
       by_cases heq : Nonempty (Representation.Equiv ρ
           (matrixBlockRepresentation (G := G) i))
       · right

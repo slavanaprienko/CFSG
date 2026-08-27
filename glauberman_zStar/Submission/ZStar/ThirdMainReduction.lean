@@ -152,8 +152,8 @@ theorem exists_admissible_primitiveDefectBlock_of_not_brauerEquality
   letI : Fintype H := Fintype.ofFinite H
   letI : DecidableEq H := Classical.decEq H
   letI : Finite (MonoidAlgebra K H) := by
-    change Finite (H →₀ K)
-    infer_instance
+    exact Finite.of_injective MonoidAlgebra.coeff
+      MonoidAlgebra.coeff_injective
   have hz : z * z = 1 := by simpa [pow_two] using hzI.2
   have hbcenter : b ∈ Set.center (MonoidAlgebra K H) := by
     simpa [b, K, H] using RelativeTransferBrauer.extraBrauerFactor_mem_center d z
@@ -381,7 +381,7 @@ theorem primitiveDefectBlock_directBrauerFactor_of_not_brauerEquality
   have hmapf_ne : MonoidAlgebra.mapDomainRingHom K E.toMonoidHom fQ ≠ 0 := by
     intro hzero
     apply hfrestrict
-    exact Finsupp.mapDomain_injective E.injective hzero
+    exact MonoidAlgebra.mapDomain_injective E.injective hzero
   have hmapfactor :
       MonoidAlgebra.mapDomainRingHom K E.toMonoidHom fQ *
           MonoidAlgebra.mapDomainRingHom K E.toMonoidHom bQ =
@@ -453,8 +453,8 @@ theorem exists_admissible_primitiveAmbientBrauerFactor_of_not_brauerEquality
   letI : Fintype C := Fintype.ofFinite C
   letI : DecidableEq C := Classical.decEq C
   letI : Finite A := by
-    change Finite (C →₀ BrauerBlockReduction.principalResidueField d)
-    infer_instance
+    exact Finite.of_injective MonoidAlgebra.coeff
+      MonoidAlgebra.coeff_injective
   letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have hfQcenter :
       DefectSupport.subgroupCentralizerRestriction
@@ -707,8 +707,8 @@ theorem exists_qcCentralizer_primitiveExactDefectBlock_of_not_brauerEquality
   letI : Fintype L := Fintype.ofFinite L
   letI : DecidableEq L := Classical.decEq L
   letI : Finite (MonoidAlgebra K L) := by
-    change Finite (L →₀ K)
-    infer_instance
+    exact Finite.of_injective MonoidAlgebra.coeff
+      MonoidAlgebra.coeff_injective
   have hfQcenter : fQ ∈
       Set.center (MonoidAlgebra K
         (Subgroup.centralizer
@@ -1124,8 +1124,8 @@ theorem exists_primitiveNormalizerFactor_of_extra
   letI : Fintype N := Fintype.ofFinite N
   letI : DecidableEq N := Classical.decEq N
   letI : Finite A := by
-    change Finite (N →₀ K)
-    infer_instance
+    exact Finite.of_injective MonoidAlgebra.coeff
+      MonoidAlgebra.coeff_injective
   have hEmbedded :=
     NormalizerBrauerAction.embeddedNormalizerOrbitSum_primitiveExtraFactor_properties
       d Q β hβprimitive hβaug hβextra

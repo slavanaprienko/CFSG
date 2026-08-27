@@ -35,6 +35,7 @@ theorem subgroupRestriction_conjugationMap_q_mul
         (RelativeTransferBrauer.conjugationMap R H ((q : G) * g) b) =
       DefectSupport.subgroupCentralizerRestriction R Q
         (RelativeTransferBrauer.conjugationMap R H g b) := by
+  apply MonoidAlgebra.coeff_injective
   apply Finsupp.ext
   intro h
   rw [DefectSupport.subgroupCentralizerRestriction_apply,
@@ -54,7 +55,7 @@ theorem subgroupRestriction_conjugationMap_q_mul
     exact Subgroup.mem_centralizer_iff.mp h.property (q : G) q.property
   change
     (MonoidAlgebra.of R G (q : G) * a *
-      MonoidAlgebra.of R G (q : G)⁻¹) (h : G) = a (h : G)
+      MonoidAlgebra.of R G (q : G)⁻¹).coeff (h : G) = a.coeff (h : G)
   rw [show MonoidAlgebra.of R G (q : G)⁻¹ =
       MonoidAlgebra.single (q : G)⁻¹ 1 by rfl,
     MonoidAlgebra.mul_single_apply,
@@ -94,16 +95,19 @@ theorem subgroupRestriction_relativeTransfer_eq_subtype_of_fixedTerms_zero
   letI : Fintype (G ⧸ H) := Fintype.ofFinite (G ⧸ H)
   letI : Fintype (MulAction.fixedPoints Q (G ⧸ H)) :=
     Fintype.ofFinite _
+  apply MonoidAlgebra.coeff_injective
   apply Finsupp.ext
   intro x
   rw [DefectSupport.subgroupCentralizerRestriction_apply,
     DefectSupport.subgroupCentralizerRestriction_apply]
-  let ev : MonoidAlgebra R G →+ R := Finsupp.applyAddHom (x : G)
+  let ev : MonoidAlgebra R G →+ R :=
+    (Finsupp.applyAddHom (x : G)).comp
+      MonoidAlgebra.coeffAddEquiv.toAddMonoidHom
   change ev (RelativeTransferBrauer.relativeTransfer R H b) =
     ev (RelativeTransferBrauer.subgroupSubtypeMap R H b)
   rw [RelativeTransferBrauer.relativeTransfer, map_sum]
   let F : (G ⧸ H) → R := fun q ↦
-    RelativeTransferBrauer.conjugationMap R H q.out b (x : G)
+    (RelativeTransferBrauer.conjugationMap R H q.out b).coeff (x : G)
   have hFinv : ∀ q : Q, ∀ c : G ⧸ H, F (q • c) = F c := by
     intro q c
     change F ((q : G) • c) = F c
@@ -115,11 +119,12 @@ theorem subgroupRestriction_relativeTransfer_eq_subtype_of_fixedTerms_zero
       · simpa only [smul_eq_mul] using
           (MulAction.Quotient.mk_smul_out H (q : G) c)
       · exact hbCenter
-    change RelativeTransferBrauer.conjugationMap R H ((q : G) • c).out b (x : G) =
-      RelativeTransferBrauer.conjugationMap R H c.out b (x : G)
+    change (RelativeTransferBrauer.conjugationMap R H ((q : G) • c).out b).coeff
+        (x : G) =
+      (RelativeTransferBrauer.conjugationMap R H c.out b).coeff (x : G)
     rw [hout]
     exact congrArg (fun y : MonoidAlgebra R
-        (Subgroup.centralizer (Q : Set G)) => y x)
+        (Subgroup.centralizer (Q : Set G)) => y.coeff x)
       (subgroupRestriction_conjugationMap_q_mul Q q H c.out b)
   let q0 : G ⧸ H := (QuotientGroup.mk (1 : G) : G ⧸ H)
   have hq0fixed : q0 ∈ MulAction.fixedPoints Q (G ⧸ H) := by
@@ -143,11 +148,12 @@ theorem subgroupRestriction_relativeTransfer_eq_subtype_of_fixedTerms_zero
         exact Subtype.ext h
       have hz := hterm y.1 y.2 (by simpa [q0] using hy0)
       let evQ : MonoidAlgebra R (Subgroup.centralizer (Q : Set G)) →+ R :=
-        Finsupp.applyAddHom x
+        (Finsupp.applyAddHom x).comp
+          MonoidAlgebra.coeffAddEquiv.toAddMonoidHom
       change evQ (DefectSupport.subgroupCentralizerRestriction R Q
         (RelativeTransferBrauer.conjugationMap R H y.1.out b)) = 0
       rw [hz, map_zero]
-    _ = RelativeTransferBrauer.subgroupSubtypeMap R H b (x : G) := by
+    _ = (RelativeTransferBrauer.subgroupSubtypeMap R H b).coeff (x : G) := by
       have hout := RelativeTransferBrauer.conjugationMap_out_eq_of_mk_eq
         H q0 (1 : G) (by simp [q0]) b hbCenter
       dsimp only [F]
@@ -204,8 +210,8 @@ theorem exists_primitiveExtraFactor_of_centralIdempotent
   letI : Fintype C := Fintype.ofFinite C
   letI : DecidableEq C := Classical.decEq C
   letI : Finite A := by
-    change Finite (C →₀ K)
-    infer_instance
+    exact Finite.of_injective MonoidAlgebra.coeff
+      MonoidAlgebra.coeff_injective
   have hmap :
       (Subring.subtype (Subring.center A)) ⟨g, hgCenter⟩ ≠ 0 := by
     simpa [A, K, C] using hgNe
@@ -352,7 +358,7 @@ theorem normalizerAlgebraEmbedding_coeff_centralizes
     (Q : Subgroup G)
     (a : MonoidAlgebra R (Subgroup.centralizer (Q : Set G)))
     (n : Subgroup.normalizer (Q : Set G))
-    (hn : NormalizerBrauerAction.normalizerAlgebraEmbedding R Q a n ≠ 0) :
+    (hn : (NormalizerBrauerAction.normalizerAlgebraEmbedding R Q a).coeff n ≠ 0) :
     n ∈ Subgroup.centralizer
       ((Q.subgroupOf (Subgroup.normalizer (Q : Set G))) :
         Set (Subgroup.normalizer (Q : Set G))) := by
@@ -360,8 +366,8 @@ theorem normalizerAlgebraEmbedding_coeff_centralizes
   have hnRange : n ∈ Set.range f := by
     by_contra hnot
     apply hn
-    change Finsupp.mapDomain f a n = 0
-    exact Finsupp.mapDomain_notin_range a n hnot
+    change Finsupp.mapDomain f a.coeff n = 0
+    exact Finsupp.mapDomain_notin_range a.coeff n hnot
   rcases hnRange with ⟨c, rfl⟩
   rw [Subgroup.mem_centralizer_iff]
   intro q hq
@@ -394,6 +400,7 @@ theorem subgroupRestriction_subgroupSubtypeMap_normalizerAlgebraEmbedding
   | zero => simp
   | add a b ha hb => simp [map_add, ha, hb]
   | single c r =>
+      apply MonoidAlgebra.coeff_injective
       apply Finsupp.ext
       intro x
       rw [DefectSupport.subgroupCentralizerRestriction_apply,
@@ -413,20 +420,21 @@ theorem subgroupRestriction_subgroupSubtypeMap_normalizerAlgebraEmbedding
 @[simp] theorem subgroupSubtypeMap_apply_image
     {R : Type u} {G : Type v} [CommRing R] [Group G]
     (H : Subgroup G) (a : MonoidAlgebra R H) (h : H) :
-    RelativeTransferBrauer.subgroupSubtypeMap R H a (h : G) = a h := by
-  change Finsupp.mapDomain H.subtype a (H.subtype h) = a h
-  exact Finsupp.mapDomain_apply H.subtype_injective a h
+    (RelativeTransferBrauer.subgroupSubtypeMap R H a).coeff (h : G) =
+      a.coeff h := by
+  change Finsupp.mapDomain H.subtype a.coeff (H.subtype h) = a.coeff h
+  exact Finsupp.mapDomain_apply H.subtype_injective a.coeff h
 
 @[simp] theorem normalizerAlgebraEmbedding_apply_image
     {R : Type u} {G : Type v} [CommRing R] [Group G]
     (Q : Subgroup G)
     (a : MonoidAlgebra R (Subgroup.centralizer (Q : Set G)))
     (c : Subgroup.centralizer (Q : Set G)) :
-    NormalizerBrauerAction.normalizerAlgebraEmbedding R Q a
-        (NormalizerBrauerAction.centralizerToNormalizer Q c) = a c := by
+    (NormalizerBrauerAction.normalizerAlgebraEmbedding R Q a).coeff
+        (NormalizerBrauerAction.centralizerToNormalizer Q c) = a.coeff c := by
   change Finsupp.mapDomain
-      (NormalizerBrauerAction.centralizerToNormalizer Q) a
-      (NormalizerBrauerAction.centralizerToNormalizer Q c) = a c
+      (NormalizerBrauerAction.centralizerToNormalizer Q) a.coeff
+      (NormalizerBrauerAction.centralizerToNormalizer Q c) = a.coeff c
   apply Finsupp.mapDomain_apply
   intro x y hxy
   apply Subtype.ext
@@ -448,6 +456,7 @@ theorem subgroupRestriction_normalizerEmbedding_subgroupRestriction_eq
             (DefectSupport.subgroupCentralizerRestriction R Q e))) =
       DefectSupport.subgroupCentralizerRestriction R DG e := by
   dsimp only
+  apply MonoidAlgebra.coeff_injective
   apply Finsupp.ext
   intro x
   rw [DefectSupport.subgroupCentralizerRestriction_apply,
@@ -472,10 +481,11 @@ theorem subgroupRestriction_normalizerEmbedding_subgroupRestriction_eq
       NormalizerBrauerAction.centralizerToNormalizer Q cQ := by
     apply Subtype.ext
     rfl
-  change RelativeTransferBrauer.subgroupSubtypeMap R
+  change (RelativeTransferBrauer.subgroupSubtypeMap R
       (Subgroup.normalizer (Q : Set G))
       (NormalizerBrauerAction.normalizerAlgebraEmbedding R Q
-        (DefectSupport.subgroupCentralizerRestriction R Q e)) xN = e (x : G)
+        (DefectSupport.subgroupCentralizerRestriction R Q e))).coeff xN =
+      e.coeff (x : G)
   rw [hxNeq, subgroupSubtypeMap_apply_image,
     normalizerAlgebraEmbedding_apply_image,
     DefectSupport.subgroupCentralizerRestriction_apply]
@@ -637,11 +647,11 @@ theorem fixedTerm_zero_of_exact_normalizer_support
   have hxRange : x ∈ Set.range ψ := by
     by_contra hxNot
     apply hxCoeff
-    change Finsupp.mapDomain ψ B x = 0
-    exact Finsupp.mapDomain_notin_range B x hxNot
+    change Finsupp.mapDomain ψ B.coeff x = 0
+    exact Finsupp.mapDomain_notin_range B.coeff x hxNot
   rcases hxRange with ⟨n, rfl⟩
-  have hnCoeff : B n ≠ 0 := by
-    change Finsupp.mapDomain ψ B (ψ n) ≠ 0 at hxCoeff
+  have hnCoeff : B.coeff n ≠ 0 := by
+    change Finsupp.mapDomain ψ B.coeff (ψ n) ≠ 0 at hxCoeff
     rw [Finsupp.mapDomain_apply hψinj] at hxCoeff
     exact hxCoeff
   have hnP : n ∈ Subgroup.centralizer (P : Set N) := by
@@ -1025,7 +1035,7 @@ theorem involutionPrincipalBrauerEquality
     simpa [P, N] using subgroupOf_normalizer_isPGroup Q hQ
   have hPnormal : P.Normal := by
     infer_instance
-  have hcoeff : ∀ n : N, BN n ≠ 0 →
+  have hcoeff : ∀ n : N, BN.coeff n ≠ 0 →
       n ∈ Subgroup.centralizer (P : Set N) := by
     intro n hn
     simpa [BN, E, P, N] using

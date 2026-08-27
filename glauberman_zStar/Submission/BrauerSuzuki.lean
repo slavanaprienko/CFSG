@@ -1,6 +1,4 @@
-import Mathlib
-
-import Submission.BenderSuzuki.PFAppendixII.proposition_1
+import BenderSuzuki.PFAppendixII.proposition_1
 
 open BenderSuzuki.PFAppendixIII
 

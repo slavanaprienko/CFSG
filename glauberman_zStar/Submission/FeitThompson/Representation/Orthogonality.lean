@@ -50,7 +50,7 @@ private lemma classFunctionInner_characterClassFunction
   congr 1
   refine Finset.sum_congr rfl ?_
   intro g _hg
-  rw [(representation_character_inv_eq_star_character σ g).symm]
+  rw [(Theory.Representation.representation_character_inv_eq_star_character σ g).symm]
 
 private lemma completeFamily_orthonormal {ι : Type*} [Fintype ι] [DecidableEq ι]
     {χ : ι → ClassFunction G} (hχ : IsCompleteIrreducibleCharacterFamily χ)

@@ -1,4 +1,3 @@
-import Mathlib
 import Submission.OddIndex
 import Submission.CyclicCase
 import Submission.BrauerSuzuki

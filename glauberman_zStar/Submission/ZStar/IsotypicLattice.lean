@@ -129,7 +129,7 @@ group-algebra element. -/
 theorem mem_center_of_coeff_conj_invariant
     {R : Type u} {G : Type v} [CommRing R] [Group G]
     (a : MonoidAlgebra R G)
-    (ha : ∀ x y : G, a (x * y * x⁻¹) = a y) :
+    (ha : ∀ x y : G, a.coeff (x * y * x⁻¹) = a.coeff y) :
     a ∈ Set.center (MonoidAlgebra R G) := by
   classical
   rw [Semigroup.mem_center_iff]
@@ -141,7 +141,7 @@ theorem mem_center_of_coeff_conj_invariant
       ext x
       rw [MonoidAlgebra.single_mul_apply,
         MonoidAlgebra.mul_single_apply]
-      have hcoeff : a (g⁻¹ * x) = a (x * g⁻¹) := by
+      have hcoeff : a.coeff (g⁻¹ * x) = a.coeff (x * g⁻¹) := by
         simpa [mul_assoc] using ha g⁻¹ (x * g⁻¹)
       rw [hcoeff]
       exact mul_comm _ _
@@ -178,7 +178,7 @@ theorem mapRingHom_injective
   ext g
   apply hf
   simpa only [MonoidAlgebra.mapRingHom_apply] using
-    congrArg (fun z : MonoidAlgebra S G ↦ z g) hab
+    congrArg (fun z : MonoidAlgebra S G ↦ z.coeff g) hab
 
 section CharacterProjector
 
@@ -261,7 +261,7 @@ noncomputable def characterProjectorNumerator
 
 @[simp] theorem characterProjectorNumerator_apply
     (d : PrincipalCongruenceBlockData G) (i : d.I) (g : G) :
-    characterProjectorNumerator d i g =
+    (characterProjectorNumerator d i).coeff g =
       algebraMap (Representation.cyclotomicOrder d.eta)
         (Localization.AtPrime d.primeIdeal)
         (characterValueInCyclotomicOrder d i 1 *
@@ -310,7 +310,7 @@ noncomputable def complexCharacterProjectorNumerator
 
 @[simp] theorem complexCharacterProjectorNumerator_apply
     (d : PrincipalCongruenceBlockData G) (i : d.I) (g : G) :
-    complexCharacterProjectorNumerator d i g =
+    (complexCharacterProjectorNumerator d i).coeff g =
       d.chi i (ConjClasses.mk (1 : G)) *
         d.chi i (ConjClasses.mk g⁻¹) := by
   classical
@@ -403,7 +403,7 @@ theorem complexCharacterProjectorNumerator_action
           ((Nat.card G : ℂ) * (if j = i then 1 else 0)) := by
     rw [groupAlgebra_trace]
     change (∑ g : G,
-        complexCharacterProjectorNumerator d i g * rho.character g) = _
+        (complexCharacterProjectorNumerator d i).coeff g * rho.character g) = _
     simp_rw [complexCharacterProjectorNumerator_apply]
     have hchar (g : G) : rho.character g =
         d.chi j (ConjClasses.mk g) := by
@@ -648,8 +648,8 @@ theorem trace_mulLeft_comp_mulRight_eq_card_mul_coeff_one
       rw [hcomp, map_smul,
         CentralIdempotentSupport.trace_mulLeft_comp_mulRight q hq g]
       rw [smul_eq_mul]
-      change r * ((Nat.card G : R) * q g⁻¹) =
-        (Nat.card G : R) * (MonoidAlgebra.single g r * q) 1
+      change r * ((Nat.card G : R) * q.coeff g⁻¹) =
+        (Nat.card G : R) * (MonoidAlgebra.single g r * q).coeff 1
       rw [MonoidAlgebra.single_mul_apply]
       simp
       ring

@@ -1,4 +1,7 @@
-import Mathlib
+import Mathlib.GroupTheory.GroupAction.ConjAct
+import Mathlib.GroupTheory.Index
+import Mathlib.Tactic.Group
+import Lean.Elab.Tactic.Omega
 open Subgroup
 open Finset
 

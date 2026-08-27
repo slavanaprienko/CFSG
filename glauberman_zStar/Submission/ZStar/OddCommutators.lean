@@ -1,6 +1,5 @@
-import Mathlib
 import Submission.ZStar.LocalReduction
-import Submission.BenderSuzuki.External.Suzuki.V.proposition_1_2
+import BenderSuzuki.External.Suzuki.V.proposition_1_2
 
 /-!
 # Odd products of conjugate isolated involutions

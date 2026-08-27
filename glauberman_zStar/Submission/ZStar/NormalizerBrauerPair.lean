@@ -162,12 +162,9 @@ theorem qcCentralizerAlgebraEmbedding_ne_zero
     qcCentralizerAlgebraEmbedding R Q b ≠ 0 := by
   intro hzero
   apply hb
-  apply Finsupp.mapDomain_injective
+  apply MonoidAlgebra.mapDomain_injective
     (centralizerToQcCentralizer_injective Q)
-  change Finsupp.mapDomain (centralizerToQcCentralizer Q) b = 0 at hzero
-  exact hzero.trans
-    (Finsupp.mapDomain_zero
-      (f := centralizerToQcCentralizer Q)).symm
+  simpa [qcCentralizerAlgebraEmbedding] using hzero
 
 /-- Every nonzero coefficient of an embedded centralizer element is indexed
 by an element of `C_G(Q)`. -/
@@ -176,12 +173,12 @@ theorem coeff_mem_centralizer_of_qcCentralizerAlgebraEmbedding_ne_zero
     (Q : Subgroup G)
     (b : MonoidAlgebra R (Subgroup.centralizer (Q : Set G)))
     (x : qcCentralizer Q)
-    (hx : qcCentralizerAlgebraEmbedding R Q b x ≠ 0) :
+    (hx : (qcCentralizerAlgebraEmbedding R Q b).coeff x ≠ 0) :
     (x : G) ∈ Subgroup.centralizer (Q : Set G) := by
   have hxrange : x ∈ Set.range (centralizerToQcCentralizer Q) := by
     by_contra hnot
     apply hx
-    exact Finsupp.mapDomain_notin_range b x hnot
+    exact Finsupp.mapDomain_notin_range b.coeff x hnot
   obtain ⟨c, rfl⟩ := hxrange
   exact c.property
 
@@ -192,7 +189,7 @@ theorem coeff_centralizes_subgroupOf_qcCentralizer_of_embedding_ne_zero
     (Q : Subgroup G)
     (b : MonoidAlgebra R (Subgroup.centralizer (Q : Set G)))
     (x : qcCentralizer Q)
-    (hx : qcCentralizerAlgebraEmbedding R Q b x ≠ 0) :
+    (hx : (qcCentralizerAlgebraEmbedding R Q b).coeff x ≠ 0) :
     x ∈ Subgroup.centralizer
       ((Q.subgroupOf (qcCentralizer Q) : Subgroup (qcCentralizer Q)) :
         Set (qcCentralizer Q)) := by
@@ -347,7 +344,7 @@ theorem subgroupOf_qcCentralizer_hasSupport_embedding
   have hQsub : IsPGroup 2 (Q.subgroupOf (qcCentralizer Q)) :=
     hQ.of_equiv (Subgroup.subgroupOfEquivOfLe
       (H := Q) (K := qcCentralizer Q) le_sup_left).symm
-  have hcoeff : ∃ c : Subgroup.centralizer (Q : Set G), b c ≠ 0 := by
+  have hcoeff : ∃ c : Subgroup.centralizer (Q : Set G), b.coeff c ≠ 0 := by
     by_contra h
     push Not at h
     apply hb
@@ -355,8 +352,8 @@ theorem subgroupOf_qcCentralizer_hasSupport_embedding
     exact h c
   obtain ⟨c, hc⟩ := hcoeff
   let x : qcCentralizer Q := centralizerToQcCentralizer Q c
-  have hx : qcCentralizerAlgebraEmbedding R Q b x ≠ 0 := by
-    change Finsupp.mapDomain (centralizerToQcCentralizer Q) b x ≠ 0
+  have hx : (qcCentralizerAlgebraEmbedding R Q b).coeff x ≠ 0 := by
+    change Finsupp.mapDomain (centralizerToQcCentralizer Q) b.coeff x ≠ 0
     rw [Finsupp.mapDomain_apply
       (centralizerToQcCentralizer_injective Q)]
     exact hc
@@ -396,8 +393,8 @@ theorem subgroupOf_qcCentralizer_isMaximalSupport_of_embedding_restriction
   · rcases hQmax.1 with ⟨_hQp, x, hxC, hxe⟩
     let c : Subgroup.centralizer (Q : Set G) := ⟨x, hxC⟩
     let xL : L := centralizerToQcCentralizer Q c
-    have hxcoeff : eL xL ≠ 0 := by
-      change Finsupp.mapDomain (centralizerToQcCentralizer Q) eQ xL ≠ 0
+    have hxcoeff : eL.coeff xL ≠ 0 := by
+      change Finsupp.mapDomain (centralizerToQcCentralizer Q) eQ.coeff xL ≠ 0
       rw [Finsupp.mapDomain_apply
         (centralizerToQcCentralizer_injective Q)]
       exact hxe
@@ -435,7 +432,7 @@ theorem subgroupOf_qcCentralizer_isMaximalSupport_of_embedding_restriction
       obtain ⟨sL, hsL, rfl⟩ := Subgroup.mem_map.mp hs
       exact congrArg Subtype.val
         (Subgroup.mem_centralizer_iff.mp hyS sL hsL)
-    have hye : e (y : G) ≠ 0 := by
+    have hye : e.coeff (y : G) ≠ 0 := by
       have hyC :=
         coeff_mem_centralizer_of_qcCentralizerAlgebraEmbedding_ne_zero
           Q eQ y hycoeff
@@ -443,7 +440,7 @@ theorem subgroupOf_qcCentralizer_isMaximalSupport_of_embedding_restriction
       have hcy : centralizerToQcCentralizer Q c = y := by
         apply Subtype.ext
         rfl
-      change Finsupp.mapDomain (centralizerToQcCentralizer Q) eQ y ≠ 0 at hycoeff
+      change Finsupp.mapDomain (centralizerToQcCentralizer Q) eQ.coeff y ≠ 0 at hycoeff
       rw [← hcy, Finsupp.mapDomain_apply
         (centralizerToQcCentralizer_injective Q)] at hycoeff
       exact hycoeff

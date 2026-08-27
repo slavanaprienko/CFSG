@@ -1,4 +1,7 @@
-import Mathlib
+import Mathlib.Algebra.MonoidAlgebra.MapDomain
+import Mathlib.Data.Finsupp.Fintype
+import Mathlib.GroupTheory.PGroup
+import Mathlib.Tactic
 
 /-!
 # Maximal 2-subgroup coefficient support
@@ -32,16 +35,18 @@ defect support. -/
 def subgroupCentralizerRestriction
     (R : Type u) {G : Type v} [Semiring R] [Group G]
     (Q : Subgroup G) :
-    MonoidAlgebra R G →+ MonoidAlgebra R
+  MonoidAlgebra R G →+ MonoidAlgebra R
       (Subgroup.centralizer (Q : Set G)) :=
-  Finsupp.comapDomain.addMonoidHom
+  MonoidAlgebra.comapDomainAddMonoidHom
+    (R := R) (Subgroup.centralizer (Q : Set G)).subtype
     (Subgroup.centralizer (Q : Set G)).subtype_injective
 
 @[simp] theorem subgroupCentralizerRestriction_apply
     {R : Type u} {G : Type v} [Semiring R] [Group G]
     (Q : Subgroup G) (e : MonoidAlgebra R G)
     (x : Subgroup.centralizer (Q : Set G)) :
-    subgroupCentralizerRestriction R Q e x = e (x : G) := rfl
+    (subgroupCentralizerRestriction R Q e).coeff x = e.coeff (x : G) := by
+  simp [subgroupCentralizerRestriction]
 
 /-- A 2-subgroup `Q` is visible in the coefficient support of `e` if a
 nonzero coefficient of `e` is indexed by an element centralized by `Q`. -/
@@ -49,7 +54,7 @@ def HasTwoCoefficientSupport
     {R : Type u} {G : Type v} [Semiring R] [Group G] [Finite G]
     (e : MonoidAlgebra R G) (Q : Subgroup G) : Prop :=
   IsPGroup 2 Q ∧
-    ∃ x : G, x ∈ Subgroup.centralizer (Q : Set G) ∧ e x ≠ 0
+    ∃ x : G, x ∈ Subgroup.centralizer (Q : Set G) ∧ e.coeff x ≠ 0
 
 /-- Maximality is measured by the cardinality of the supporting 2-subgroup. -/
 def IsMaximalTwoCoefficientSupport
@@ -116,7 +121,7 @@ private theorem bot_has_support
 private theorem exists_nonzero_coeff
     {R : Type u} {G : Type v} [Semiring R] [Group G]
     (e : MonoidAlgebra R G) (he : e ≠ 0) :
-    ∃ x : G, e x ≠ 0 := by
+    ∃ x : G, e.coeff x ≠ 0 := by
   by_contra h
   push Not at h
   apply he
@@ -129,7 +134,7 @@ theorem subgroupCentralizerRestriction_ne_zero_iff
     {R : Type u} {G : Type v} [Semiring R] [Group G]
     (e : MonoidAlgebra R G) (Q : Subgroup G) :
     subgroupCentralizerRestriction R Q e ≠ 0 ↔
-      ∃ x : G, x ∈ Subgroup.centralizer (Q : Set G) ∧ e x ≠ 0 := by
+      ∃ x : G, x ∈ Subgroup.centralizer (Q : Set G) ∧ e.coeff x ≠ 0 := by
   constructor
   · intro hne
     obtain ⟨x, hx⟩ := exists_nonzero_coeff
@@ -139,9 +144,9 @@ theorem subgroupCentralizerRestriction_ne_zero_iff
     let xCentral : Subgroup.centralizer (Q : Set G) := ⟨x, hxcentral⟩
     have hcoeff := congrArg
       (fun a : MonoidAlgebra R (Subgroup.centralizer (Q : Set G)) =>
-        a xCentral) hzero
-    change e x = 0 at hcoeff
-    exact hx hcoeff
+        a.coeff xCentral) hzero
+    apply hx
+    simpa [subgroupCentralizerRestriction] using hcoeff
 
 /-- Coefficient support can equivalently be stated as nonvanishing of the
 subgroup Brauer restriction. -/
@@ -252,7 +257,7 @@ theorem normalTwoSubgroup_le_of_isMaximalTwoCoefficientSupport_of_coeff_centrali
     (e : MonoidAlgebra R G) (D : Subgroup G)
     (hD : IsMaximalTwoCoefficientSupport e D)
     (P : Subgroup G) (hPp : IsPGroup 2 P) (hPnormal : P.Normal)
-    (hcoeff : ∀ x : G, e x ≠ 0 →
+    (hcoeff : ∀ x : G, e.coeff x ≠ 0 →
       x ∈ Subgroup.centralizer (P : Set G)) :
     P ≤ D := by
   rcases hD.1 with ⟨hDp, x, hxD, hxcoeff⟩

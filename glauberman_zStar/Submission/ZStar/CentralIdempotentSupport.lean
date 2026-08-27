@@ -98,8 +98,8 @@ theorem isLocalRing_monoidAlgebra_of_card_two
     exact hdet.map (algebraMap R (MonoidAlgebra R C))
   apply IsLocalRing.of_isUnit_or_isUnit_one_sub_self
   intro f
-  let a := f 1
-  let b := f c
+  let a := f.coeff 1
+  let b := f.coeff c
   have hf : f = MonoidAlgebra.single (1 : C) a +
       MonoidAlgebra.single c b := by
     ext x
@@ -116,11 +116,11 @@ theorem isLocalRing_monoidAlgebra_of_card_two
           MonoidAlgebra.single c (-b) := by
       ext x
       change
-        MonoidAlgebra.single (1 : C) 1 x -
-            (MonoidAlgebra.single (1 : C) a x +
-              MonoidAlgebra.single c b x) =
-          MonoidAlgebra.single (1 : C) (1 - a) x +
-            MonoidAlgebra.single c (-b) x
+        (MonoidAlgebra.single (1 : C) 1).coeff x -
+            ((MonoidAlgebra.single (1 : C) a).coeff x +
+              (MonoidAlgebra.single c b).coeff x) =
+          (MonoidAlgebra.single (1 : C) (1 - a)).coeff x +
+            (MonoidAlgebra.single c (-b)).coeff x
       rcases hall x with rfl | rfl
       · simp [hc]
       · simp [hc]
@@ -137,14 +137,14 @@ theorem trace_mulLeft_of_ne_one
     LinearMap.trace R (MonoidAlgebra R C)
         (LinearMap.mulLeft R (MonoidAlgebra.of R C g)) = 0 := by
   classical
-  let b : Basis C R (MonoidAlgebra R C) := Finsupp.basisSingleOne
+  let b : Basis C R (MonoidAlgebra R C) := MonoidAlgebra.basis C R
   rw [LinearMap.trace_eq_matrix_trace R b, Matrix.trace]
   apply Finset.sum_eq_zero
   intro i _hi
   change Algebra.leftMulMatrix b (MonoidAlgebra.of R C g) i i = 0
   rw [Algebra.leftMulMatrix_eq_repr_mul]
   change (MonoidAlgebra.single g 1 * MonoidAlgebra.single i 1 :
-      MonoidAlgebra R C) i = 0
+      MonoidAlgebra R C).coeff i = 0
   simp [hg]
 
 /-- A nonidentity element has trace zero on every finite free module over its
@@ -162,7 +162,7 @@ theorem trace_lsmul_of_free_groupAlgebra
         ((LinearMap.lsmul (MonoidAlgebra R C) M
           (MonoidAlgebra.of R C g)).restrictScalars R) = 0 := by
   classical
-  let bR : Basis C R (MonoidAlgebra R C) := Finsupp.basisSingleOne
+  let bR : Basis C R (MonoidAlgebra R C) := MonoidAlgebra.basis C R
   let bM := Module.Free.chooseBasis (MonoidAlgebra R C) M
   rw [LinearMap.trace_eq_matrix_trace R (bR.smulTower' bM), Matrix.trace]
   apply Finset.sum_eq_zero
@@ -175,7 +175,7 @@ theorem trace_lsmul_of_free_groupAlgebra
   change bR.repr
       ((MonoidAlgebra.of R C g) * bR j) j = 0
   change (MonoidAlgebra.single g 1 * MonoidAlgebra.single j 1 :
-      MonoidAlgebra R C) j = 0
+      MonoidAlgebra R C).coeff j = 0
   simp [hg]
 
 /-- Representation-theoretic form of `trace_lsmul_of_free_groupAlgebra`. -/
@@ -226,9 +226,9 @@ theorem coeff_conj_eq_of_mem_center
     {R : Type u} {G : Type v} [CommRing R] [Group G]
     (e : MonoidAlgebra R G) (he : e ∈ Set.center (MonoidAlgebra R G))
     (x y : G) :
-    e (x * y * x⁻¹) = e y := by
+    e.coeff (x * y * x⁻¹) = e.coeff y := by
   have hcomm := Semigroup.mem_center_iff.mp he (MonoidAlgebra.of R G x)
-  have h := congrArg (fun z : MonoidAlgebra R G ↦ z (x * y)) hcomm
+  have h := congrArg (fun z : MonoidAlgebra R G ↦ z.coeff (x * y)) hcomm
   simpa [MonoidAlgebra.of_apply, mul_assoc] using h.symm
 
 /-- The trace of `x ↦ g * x * e` on the regular module is the group order
@@ -240,19 +240,19 @@ theorem trace_mulLeft_comp_mulRight
     LinearMap.trace R (MonoidAlgebra R G)
         ((LinearMap.mulLeft R (MonoidAlgebra.of R G g)).comp
           (LinearMap.mulRight R e)) =
-      (Nat.card G : R) * e g⁻¹ := by
+      (Nat.card G : R) * e.coeff g⁻¹ := by
   classical
-  let b : Basis G R (MonoidAlgebra R G) := Finsupp.basisSingleOne
+  let b : Basis G R (MonoidAlgebra R G) := MonoidAlgebra.basis G R
   rw [LinearMap.trace_eq_matrix_trace R b, Matrix.trace]
   have hdiag : ∀ x : G,
       ((LinearMap.toMatrix b b)
         ((LinearMap.mulLeft R (MonoidAlgebra.of R G g)).comp
-          (LinearMap.mulRight R e))).diag x = e g⁻¹ := by
+          (LinearMap.mulRight R e))).diag x = e.coeff g⁻¹ := by
     intro x
     simp only [Matrix.diag_apply, LinearMap.toMatrix_apply,
       LinearMap.comp_apply, LinearMap.mulLeft_apply, LinearMap.mulRight_apply]
     change (MonoidAlgebra.single g 1 *
-      (MonoidAlgebra.single x 1 * e) : MonoidAlgebra R G) x = e g⁻¹
+      (MonoidAlgebra.single x 1 * e) : MonoidAlgebra R G).coeff x = e.coeff g⁻¹
     rw [← mul_assoc, MonoidAlgebra.single_mul_single]
     simp only [one_mul]
     rw [MonoidAlgebra.single_mul_apply]
@@ -405,7 +405,7 @@ private noncomputable def freePUnitEquivLeftRegular
     (Representation.free R G PUnit).Equiv
       (Representation.leftRegular R G) :=
   Representation.Equiv.mk
-    (Finsupp.uniqueLinearEquiv R (G →₀ R) PUnit.unit) (by
+    (Finsupp.uniqueLinearEquiv R (MonoidAlgebra R G) PUnit.unit) (by
       intro g
       ext f x
       simp [Representation.finsupp_apply])
@@ -592,7 +592,7 @@ theorem trace_rightIdealAction_eq_card_mul_coeff
     [Module.Finite R (LinearMap.ker (LinearMap.mulRight R e))]
     (g : G) :
     LinearMap.trace R (rightIdeal R e) (rightIdealAction R e g) =
-      (Nat.card G : R) * e g⁻¹ := by
+      (Nat.card G : R) * e.coeff g⁻¹ := by
   rw [← trace_mulLeft_comp_mulRight_eq_trace_rightIdeal e heidem g,
     trace_mulLeft_comp_mulRight e hecenter g]
 
@@ -609,8 +609,8 @@ theorem coeff_inv_eq_zero_of_trace_rightIdealAction_eq_zero
     [Module.Finite R (LinearMap.ker (LinearMap.mulRight R e))]
     (g : G)
     (htrace : LinearMap.trace R (rightIdeal R e) (rightIdealAction R e g) = 0) :
-    e g⁻¹ = 0 := by
-  have hmul : (Nat.card G : R) * e g⁻¹ = 0 := by
+    e.coeff g⁻¹ = 0 := by
+  have hmul : (Nat.card G : R) * e.coeff g⁻¹ = 0 := by
     rw [← trace_rightIdealAction_eq_card_mul_coeff e heidem hecenter g]
     exact htrace
   rcases mul_eq_zero.mp hmul with hcard | hcoeff
@@ -639,7 +639,7 @@ theorem coeff_inv_eq_zero_of_projective_restriction
       (restrictedRightIdealRepresentation R e phi).asModule]
     [Module.Finite (MonoidAlgebra R C)
       (restrictedRightIdealRepresentation R e phi).asModule] :
-    e (phi c)⁻¹ = 0 := by
+    e.coeff (phi c)⁻¹ = 0 := by
   apply coeff_inv_eq_zero_of_trace_rightIdealAction_eq_zero
     e heidem hecenter (phi c)
   simpa [rightIdealRepresentation] using
@@ -661,7 +661,7 @@ theorem coeff_inv_eq_zero_of_projective_restriction_of_local
       (restrictedRightIdealRepresentation R e phi).asModule]
     [Module.Finite (MonoidAlgebra R C)
       (restrictedRightIdealRepresentation R e phi).asModule] :
-    e (phi c)⁻¹ = 0 := by
+    e.coeff (phi c)⁻¹ = 0 := by
   let p : MonoidAlgebra R G →ₗ[R] MonoidAlgebra R G := LinearMap.mulRight R e
   have hp : IsIdempotentElem p := by
     change (LinearMap.mulRight R e).comp (LinearMap.mulRight R e) =
@@ -699,7 +699,7 @@ theorem coeff_involution_eq_zero_of_projective_restriction
       (restrictedRightIdealRepresentation R e phi).asModule]
     [Module.Finite (MonoidAlgebra R C)
       (restrictedRightIdealRepresentation R e phi).asModule] :
-    e s = 0 := by
+    e.coeff s = 0 := by
   have h := coeff_inv_eq_zero_of_projective_restriction
     phi c hc e heidem hecenter
   have hs_inv : s⁻¹ = s := inv_eq_of_mul_eq_one_right hsq
@@ -721,7 +721,7 @@ theorem coeff_involution_eq_zero_of_projective_restriction_of_local
       (restrictedRightIdealRepresentation R e phi).asModule]
     [Module.Finite (MonoidAlgebra R C)
       (restrictedRightIdealRepresentation R e phi).asModule] :
-    e s = 0 := by
+    e.coeff s = 0 := by
   have h := coeff_inv_eq_zero_of_projective_restriction_of_local
     phi c hc e heidem hecenter
   have hs_inv : s⁻¹ = s := inv_eq_of_mul_eq_one_right hsq
@@ -742,7 +742,7 @@ theorem coeff_involution_eq_zero
     (s : G) (hsne : s ≠ 1) (hsq : s * s = 1)
     (e : MonoidAlgebra R G) (heidem : IsIdempotentElem e)
     (hecenter : e ∈ Set.center (MonoidAlgebra R G)) :
-    e s = 0 := by
+    e.coeff s = 0 := by
   have hsord : orderOf s = 2 := by
     haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
     apply orderOf_eq_prime (p := 2)

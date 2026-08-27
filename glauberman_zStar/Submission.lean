@@ -12,6 +12,8 @@ namespace Submission
 
 open Subgroup
 
+universe u
+
 /-- Glauberman's Z*-theorem.
 
 The proof uses the uniform Z*-theorem approach: convert global isolation to
@@ -21,7 +23,7 @@ the core-free case), and package the result via the odd-core/quotient bridge
 
 The core-free case (`glauberman_zstar_corefree`) is supplied by the uniform
 principal-`2`-block factory and its strong-induction assembly. -/
-theorem glauberman_zStar (G : Type) [Group G] [Fintype G]
+theorem glauberman_zStar (G : Type u) [Group G] [Fintype G]
     (t : G) (ht1 : t ≠ 1) (ht2 : t * t = 1)
     (hisolated : ∀ g : G,
       (g * t * g⁻¹) * t = t * (g * t * g⁻¹) →

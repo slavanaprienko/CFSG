@@ -54,15 +54,27 @@ public theorem focalSubgroup_le_map_commutator_of_controlsFusionIn
     (P : Subgroup G).focalSubgroup ≤
       (commutator E).map E.subtype := by
   rw [Subgroup.focalSubgroup_def, Subgroup.closure_le]
-  rintro z ⟨x, hxP, y, hyP, hxy, rfl⟩
+  rintro z ⟨hzP, x, hxP, u, rfl⟩
+  have hyP : u * x * u⁻¹ ∈ (P : Subgroup G) := by
+    have hy : u * x * u⁻¹ = ⁅x, u⁆⁻¹ * x := by
+      simp only [commutatorElement_def, mul_inv_rev, inv_inv]
+      group
+    rw [hy]
+    exact (P : Subgroup G).mul_mem ((P : Subgroup G).inv_mem hzP) hxP
+  have hxy : IsConj x (u * x * u⁻¹) := isConj_iff.mpr ⟨u, rfl⟩
   obtain ⟨e, he⟩ := hfusion.exists_conjugator hxP hyP hxy
   let xE : E := ⟨x, hP hxP⟩
-  have hecomm : ⁅xE⁻¹, e⁆ ∈ commutator E :=
+  have hecomm : ⁅xE, e⁆ ∈ commutator E :=
     Subgroup.commutator_mem_commutator (H₁ := (⊤ : Subgroup E))
       (H₂ := (⊤ : Subgroup E)) (by simp) (by simp)
-  refine Subgroup.mem_map.mpr ⟨⁅xE⁻¹, e⁆, hecomm, ?_⟩
-  have hmul := congrArg (fun z : G => x⁻¹ * z) he
-  simpa [Subgroup.coe_subtype, commutatorElement_def, xE, mul_assoc] using hmul
+  refine Subgroup.mem_map.mpr ⟨⁅xE, e⁆, hecomm, ?_⟩
+  simp only [Subgroup.coe_subtype, commutatorElement_def, xE, map_mul, map_inv]
+  have heInv : (e : G) * x⁻¹ * (e : G)⁻¹ = u * x⁻¹ * u⁻¹ := by
+    simpa only [mul_inv_rev, inv_inv, mul_assoc] using congrArg Inv.inv he
+  calc
+    x * (e : G) * x⁻¹ * (e : G)⁻¹ = x * ((e : G) * x⁻¹ * (e : G)⁻¹) := by group
+    _ = x * (u * x⁻¹ * u⁻¹) := by rw [heInv]
+    _ = x * u * x⁻¹ * u⁻¹ := by group
 
 /-- Fusion control identifies the intersection of every subgroup of the
 ambient Sylow subgroup with the ambient commutator and with the commutator of

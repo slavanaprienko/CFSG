@@ -498,6 +498,18 @@ private lemma appendixII_quotient_involution_central
   rw [← hzu]
   exact z.2
 
+/-- An involution is central modulo the `2'`-core when a Sylow `2`-subgroup is
+generalized quaternion. This is the quotient-centrality consequence of
+Peterfalvi's Appendix II argument. -/
+public theorem appendixII_quotient_involution_central_public
+    {G : Type u} [Group G] [Finite G]
+    (P : Sylow 2 G) {n : ℕ} (hn : 3 ≤ n)
+    (hP : Nonempty (P ≃* QuaternionGroup (2 ^ (n - 2))))
+    (u : G) (huI : IsInvolution u) :
+    QuotientGroup.mk' (pPrimeCore 2 G) u ∈
+      Subgroup.center (G ⧸ pPrimeCore 2 G) := by
+  exact appendixII_quotient_involution_central P hn hP u huI
+
 private lemma appendixII_factorization_of_quotient_involution_central
     {G : Type u} [Group G] [Finite G] (u : G) (huI : IsInvolution u)
     (hcentral :
